@@ -3,6 +3,9 @@ import { transaction, insert, audit } from './db.mjs';
 import { assert, today, nextCycle, addDays, hydrate, date, money, escapeHtml } from './domain.mjs';
 import { queueEmail } from './mail.mjs';
 
+const roundRatio = (amount, numerator, denominator) => Number((BigInt(amount)*BigInt(numerator)+BigInt(denominator)/2n)/BigInt(denominator));
+const floorRatio = (amount, numerator, denominator) => Number(BigInt(amount)*BigInt(numerator)/BigInt(denominator));
+
 export function calculateInvoice(db, sub, cycleDate, consume = false) {
   const plan = db.prepare('SELECT name,tax_id FROM plans WHERE id=?').get(sub.plan_id);
   const source = [{ product_id: null, name: `${plan.name} · base fee`, variant: '', quantity: 1, unit_price: sub.plan_price, tax_id: plan.tax_id }, ...JSON.parse(sub.lines)];
@@ -17,11 +20,11 @@ export function calculateInvoice(db, sub, cycleDate, consume = false) {
     const eligible = lines.filter(l => !discount.product_id || l.product_id === discount.product_id);
     const basis = eligible.reduce((n, l) => n + l.subtotal - l.discount, 0);
     if (!basis) continue;
-    const amount = discount.kind === 'fixed' ? Math.min(basis, discount.value) : Math.round(basis * discount.value / 10000);
+    const amount = discount.kind === 'fixed' ? Math.min(basis, discount.value) : roundRatio(basis, discount.value, 10000);
     if (!amount) continue;
     let remainder = amount;
     eligible.forEach((line, index) => {
-      const part = index === eligible.length - 1 ? remainder : Math.floor(amount * (line.subtotal - line.discount) / basis);
+      const part = index === eligible.length - 1 ? remainder : floorRatio(amount, line.subtotal - line.discount, basis);
       line.discount += part;
       remainder -= part;
     });
@@ -29,7 +32,7 @@ export function calculateInvoice(db, sub, cycleDate, consume = false) {
     if (consume) db.prepare('UPDATE discounts SET uses=uses+1 WHERE id=?').run(discount.id);
   }
   for (const line of lines) {
-    line.tax = Math.round((line.subtotal - line.discount) * line.tax_bps / 10000);
+    line.tax = roundRatio(line.subtotal - line.discount, line.tax_bps, 10000);
     line.total = line.subtotal - line.discount + line.tax;
   }
   return { lines, subtotal, discount: lines.reduce((n,l) => n+l.discount, 0), tax: lines.reduce((n,l) => n+l.tax, 0), total: lines.reduce((n,l) => n+l.total, 0), discount_ids: applied };
