@@ -22,15 +22,12 @@ export function report(db, user, query = {}) {
     ...(planId ? { plan: planId } : {}),
   };
   const all = (sql) => {
-    const stmt = db.prepare(sql);
-    const names = new Set(
-      [...sql.matchAll(/@(\w+)/g)].map((match) => match[1]),
-    );
-    return stmt.all(
-      Object.fromEntries(
-        Object.entries(params).filter(([key]) => names.has(key)),
-      ),
-    );
+    const values = [];
+    const positional = sql.replace(/@(\w+)/g, (_match, name) => {
+      values.push(params[name]);
+      return "?";
+    });
+    return db.prepare(positional).all(...values);
   };
   const one = (sql) => all(sql)[0];
   const active = one(
