@@ -48,6 +48,18 @@ These are serial local requests, not concurrent-load, public-network, browser-re
 
 - Docker image/Compose packaging: build and run on a Docker-enabled host.
 - SMTP transport: local testing used the outbox, not a live provider.
-- Public hosting, domain/TLS setup, payment-provider integration, and production restore drills.
+- Custom domain setup, payment-provider integration, and production restore drills.
 
-No claim of public deployment or real card processing is made.
+Public Render hosting is verified below. No claim of real card processing is made.
+
+## Render live verification — 31 October 2026
+
+- Live demo: https://brightloop-subscriptions.onrender.com
+- Service: `srv-dbipv6nlk1mc73fdoui0` in Festin's workspace, Singapore.
+- Deploy `dep-dbipv77lk1mc73fdp0b0` reached `live` on source commit `3f8f4e7c4a1cdb876f019114cb5316547f3cd676`.
+- HTTPS health endpoint returned `status=ok`; authentication metadata confirmed demo mode and outbox email mode.
+- Browser admin demo login succeeded and populated the revenue dashboard, subscriptions, invoices, and renewal summary.
+- Render confirmed one instance and a 1 GB disk mounted at `/opt/render/project/src/data`. Persistence across a restart and backup restoration were not exercised.
+- Base estimate shown by Render: $7/month compute + $0.25/month disk, excluding additional usage/taxes.
+- Live dashboard evidence: [screenshot](assets/render-live.png).
+

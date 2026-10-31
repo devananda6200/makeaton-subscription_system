@@ -83,4 +83,5 @@ Port 465 uses immediate TLS; other ports use STARTTLS behavior. Use a verified s
 
 ## Boundary
 
-This is a tested hackathon application with INR/UTC billing and single-instance persistence. Card acquiring, refunds, credit notes, multi-company tenancy, jurisdiction-specific tax compliance, distributed jobs, and accrual accounting require additional implementation and operational checks. Public hosting, real SMTP delivery, and production restore drills have not been provisioned or tested here.
+This is a tested hackathon application with INR/UTC billing and single-instance persistence. Card acquiring, refunds, credit notes, multi-company tenancy, jurisdiction-specific tax compliance, distributed jobs, and accrual accounting require additional implementation and operational checks. Public demo hosting is verified at https://brightloop-subscriptions.onrender.com (see VERIFICATION.md). Real SMTP delivery and production restore drills remain unverified.
+
