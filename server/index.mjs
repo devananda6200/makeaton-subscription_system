@@ -45,7 +45,7 @@ function scheduleBilling() {
 }
 const timer = setInterval(scheduleBilling, 60 * 60 * 1000);
 timer.unref();
-if (!demo) scheduleBilling();
+scheduleBilling();
 void deliverOutbox(db);
 const emailTimer = setInterval(() => void deliverOutbox(db), 60000);
 emailTimer.unref();

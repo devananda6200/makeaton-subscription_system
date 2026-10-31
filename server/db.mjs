@@ -7,6 +7,14 @@ export function openDatabase(
   filename = process.env.DATABASE_PATH || "./data/brightloop.db",
 ) {
   const remote = arguments.length === 0 && process.env.TURSO_DATABASE_URL;
+  if (
+    arguments.length === 0 &&
+    process.env.REQUIRE_REMOTE_DATABASE === "true" &&
+    !remote
+  )
+    throw new Error(
+      "A durable TURSO_DATABASE_URL is required on free hosting.",
+    );
   if (remote && !process.env.TURSO_AUTH_TOKEN)
     throw new Error("TURSO_AUTH_TOKEN is required for the remote database.");
   if (!remote && filename !== ":memory:")
