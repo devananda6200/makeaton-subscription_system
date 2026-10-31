@@ -846,7 +846,7 @@ function Journal({
         description={
           section === "outbox"
             ? emailMode !== "outbox"
-              ? "Delivery status for invoices, reminders, and account messages."
+              ? "Email for registered accounts: 50 attempts/day, five per recipient, with a five-minute cooldown. Deferred messages wait for available capacity."
               : "Email preview is active. Messages are queued here until an email provider is configured."
             : "A shared view of the work that keeps your business moving."
         }

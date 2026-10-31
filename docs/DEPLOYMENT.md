@@ -27,7 +27,6 @@ TURSO_DATABASE_URL=libsql://your-database.turso.io
 TURSO_AUTH_TOKEN=<database-scoped read/write token>
 BREVO_API_KEY=<restricted transactional-email key>
 MAIL_FROM_EMAIL=<verified sender email>
-EMAIL_ALLOWED_RECIPIENTS=<comma-separated approved test inboxes>
 ```
 
 The Blueprint enables `REQUIRE_REMOTE_DATABASE=true` to prevent silent fallback
@@ -48,11 +47,33 @@ Verify the sender in Brevo. With a freemail sender, Brevo may rewrite the visibl
 address onto its authenticated `brevosend.com` domain. No marketing contacts or
 campaigns are needed. The key is restricted to transactional email.
 
-The public demo sends only to `EMAIL_ALLOWED_RECIPIENTS`. Fictional addresses
-are blocked. This prevents public admin credentials from turning the app into
-an unrestricted mail sender. Add judges' approved inboxes in Render if needed.
-The app caps successful sends at 50 per UTC day; Brevo Free currently allows
-300 per day across the account. Keep the provider on Free for its hard quota.
+Any registered account can receive password resets and invoice emails at its
+registered address. Invoice delivery uses the invoice's customer email snapshot;
+that address must have an account. Invite customers first if needed. The former
+`EMAIL_ALLOWED_RECIPIENTS` setting is ignored and can be removed. Fictional demo
+addresses remain blocked; no additional sample customers are created.
+
+Abuse controls persist in Turso across deployments:
+
+- At most **50 provider attempts per UTC day**, including failures and retries.
+  Invoice/reminder attempts stop at 40 total attempts, leaving capacity for resets
+  and invitations. Brevo Free's account allowance is 300/day; keep it on Free.
+- At most **five attempts per recipient per UTC day**, with a five-minute cooldown.
+- Queue admission also limits each recipient to five messages/day and the entire
+  app to 100 new messages/day, preventing an unlimited backlog.
+- Registration, reset requests, invitations, invoice sends/reminders and retries
+  share a **10 requests/hour per IP** database throttle. IPv6 addresses are grouped
+  by subnet and only hashed keys are stored. Shared Wi-Fi users share this limit.
+- Repeated reset requests return the same generic response and retain the existing
+  link during cooldown. Reset links expire after 30 minutes; other queued mail
+  expires after 24 hours. Quota-deferred messages are retried while the app is awake.
+- Attempts are reserved transactionally before contacting Brevo. An interrupted
+  delivery becomes a failed message after 20 minutes, requiring an explicit retry
+  after checking the inbox, because provider acceptance may be uncertain.
+
+These are bounded abuse protections, not proof of mailbox ownership or a guarantee
+against coordinated abuse. The public demo can exhaust its small daily allowance;
+legitimate messages may then wait or expire. No paid fallback is enabled.
 
 A `sent` status means provider acceptance. Confirm inbox arrival in provider
 logs or the recipient mailbox. Failed sends can be retried from the outbox.
