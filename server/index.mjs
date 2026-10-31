@@ -5,6 +5,12 @@ import { runBilling } from "./billing.mjs";
 import { deliverOutbox } from "./mail.mjs";
 import { setImmediate as yieldToRequests } from "node:timers/promises";
 
+// Render assigns the public URL after service creation. Keep a custom APP_URL
+// authoritative, otherwise use the platform URL for origin checks and email links.
+if (!process.env.APP_URL && process.env.RENDER_EXTERNAL_URL) {
+  process.env.APP_URL = process.env.RENDER_EXTERNAL_URL;
+}
+
 const db = openDatabase();
 const requestedDemo =
   process.env.DEMO_MODE === "true" ||
