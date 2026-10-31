@@ -5,6 +5,7 @@ import { nextCycle, password, date, today, addDays } from "../domain.mjs";
 import {
   createSubscription,
   transitionSubscription,
+  changeSubscriptionLines,
 } from "../subscriptions.mjs";
 import { hashPassword, checkPassword } from "../auth.mjs";
 
@@ -105,5 +106,57 @@ test("catalog snapshots honor variant surcharges, availability and minimum quant
   );
   db.prepare("UPDATE plans SET min_quantity=5 WHERE id=1").run();
   assert.throws(() => createSubscription(db, input, user), /at least 5/);
+  db.close();
+});
+
+test("customers can change future add-ons but cannot change base products or other accounts", () => {
+  const { db, user, input } = fixture();
+  insert(db, "products", {
+    name: "Analytics",
+    type: "addon",
+    price: 5000,
+    cost: 1000,
+    tax_id: 1,
+  });
+  const sub = createSubscription(db, input, user);
+  db.prepare(
+    "UPDATE subscriptions SET status='active',next_billing=? WHERE id=?",
+  ).run(addDays(today(), 20), sub.id);
+  const customer = { ...user, role: "customer", customer_id: 1 };
+  const lines = [...input.lines, { product_id: 2, quantity: 1, variant: "" }];
+  const changed = changeSubscriptionLines(db, sub.id, lines, customer);
+  assert.equal(changed.lines[1].unit_price, 5000);
+  assert.throws(
+    () =>
+      changeSubscriptionLines(
+        db,
+        sub.id,
+        [{ ...input.lines[0], quantity: 3 }],
+        customer,
+      ),
+    /add-ons only/,
+  );
+  assert.throws(
+    () =>
+      changeSubscriptionLines(db, sub.id, lines, {
+        ...customer,
+        customer_id: 2,
+      }),
+    /not found/,
+  );
+  db.prepare("UPDATE products SET price=99999 WHERE id=1").run();
+  assert.equal(
+    changeSubscriptionLines(db, sub.id, input.lines, customer).lines[0]
+      .unit_price,
+    10000,
+  );
+  db.prepare("UPDATE subscriptions SET next_billing=? WHERE id=?").run(
+    today(),
+    sub.id,
+  );
+  assert.throws(
+    () => changeSubscriptionLines(db, sub.id, lines, customer),
+    /outstanding billing/,
+  );
   db.close();
 });

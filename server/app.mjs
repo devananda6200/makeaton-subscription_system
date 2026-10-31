@@ -32,6 +32,7 @@ import {
 import {
   createSubscription,
   transitionSubscription,
+  changeSubscriptionLines,
 } from "./subscriptions.mjs";
 import {
   runBilling,
@@ -237,6 +238,26 @@ export function createApp(db, { demo = false } = {}) {
   });
 
   app.use("/api", requireUser);
+  app.get("/api/subscription-catalog", (_req, res) =>
+    res.json({
+      items: db
+        .prepare(
+          "SELECT id,name,type,price,variants FROM products WHERE archived=0 ORDER BY name LIMIT 500",
+        )
+        .all()
+        .map(hydrate),
+    }),
+  );
+  app.put("/api/subscriptions/:id/lines", (req, res) =>
+    res.json(
+      changeSubscriptionLines(
+        db,
+        safeId(req.params.id),
+        req.body.lines,
+        req.user,
+      ),
+    ),
+  );
   app.get("/api/lookups", (req, res) => {
     const customer = req.user.role === "customer";
     const q = String(req.query.q || "").slice(0, 100);

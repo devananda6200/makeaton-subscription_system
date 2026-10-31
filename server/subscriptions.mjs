@@ -8,7 +8,9 @@ import {
   addDays,
   nextCycle,
   date,
+  lineSchema,
 } from "./domain.mjs";
+import { z } from "zod";
 
 export function createSubscription(db, input, user) {
   const data = subscriptionSchema.parse(input);
@@ -163,6 +165,85 @@ export function transitionSubscription(db, id, action, user, options = {}) {
       "subscription",
       id,
       sub.number,
+    );
+    return hydrate(
+      db.prepare("SELECT * FROM subscriptions WHERE id=?").get(id),
+    );
+  });
+}
+
+export function changeSubscriptionLines(db, id, input, user) {
+  const requested = z.array(lineSchema).min(1).max(50).parse(input);
+  return transaction(db, () => {
+    const sub = db
+      .prepare(
+        "SELECT s.*,p.min_quantity FROM subscriptions s JOIN plans p ON p.id=s.plan_id WHERE s.id=?",
+      )
+      .get(id);
+    assert(sub, "Subscription not found", 404);
+    assert(
+      user.role !== "customer" || sub.customer_id === user.customer_id,
+      "Subscription not found",
+      404,
+    );
+    assert(
+      sub.status !== "closed",
+      "Renew this subscription before changing products",
+    );
+    assert(
+      !["active", "paused"].includes(sub.status) || sub.next_billing > today(),
+      "Run outstanding billing before changing future product lines",
+    );
+    const existing = JSON.parse(sub.lines);
+    if (user.role === "customer") {
+      assert(
+        ["active", "paused"].includes(sub.status),
+        "A team member must finish setting up this subscription first",
+      );
+      const isAddon = (line) =>
+        db.prepare("SELECT type FROM products WHERE id=?").get(line.product_id)
+          ?.type === "addon";
+      const base = (lines) =>
+        lines
+          .filter((l) => !isAddon(l))
+          .map((l) => ({
+            product_id: l.product_id,
+            quantity: l.quantity,
+            variant: l.variant || "",
+          }))
+          .sort(
+            (a, b) =>
+              a.product_id - b.product_id || a.variant.localeCompare(b.variant),
+          );
+      assert(
+        JSON.stringify(base(existing)) === JSON.stringify(base(requested)),
+        "Customers can change add-ons only; contact your team to change base products",
+        403,
+      );
+    }
+    assert(
+      requested.reduce((n, l) => n + l.quantity, 0) >= sub.min_quantity,
+      `This plan requires at least ${sub.min_quantity} units`,
+    );
+    const lines = requested.map((line) => {
+      const prior = existing.find(
+        (l) => l.product_id === line.product_id && l.variant === line.variant,
+      );
+      return prior
+        ? { ...prior, quantity: line.quantity }
+        : snapshotLines(db, [line])[0];
+    });
+    db.prepare("UPDATE subscriptions SET lines=? WHERE id=?").run(
+      JSON.stringify(lines),
+      id,
+    );
+    audit(
+      db,
+      user,
+      "Updated subscription products",
+      "subscription",
+      id,
+      `${sub.number} · applies from ${sub.next_billing}`,
     );
     return hydrate(
       db.prepare("SELECT * FROM subscriptions WHERE id=?").get(id),

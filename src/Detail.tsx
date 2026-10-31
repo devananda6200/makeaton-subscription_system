@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import {
   ArrowRight,
   Check,
@@ -10,6 +10,9 @@ import {
   RefreshCw,
   Send,
   X,
+  Plus,
+  Settings2,
+  Trash2,
 } from "lucide-react";
 import {
   api,
@@ -59,6 +62,7 @@ export default function Detail({
   const [busy, setBusy] = useState("");
   const [confirm, setConfirm] = useState("");
   const [expiry, setExpiry] = useState("");
+  const [editingLines, setEditingLines] = useState(false);
   const invoice = section === "invoices";
   const team = user.role !== "customer";
   async function action(action: string) {
@@ -367,6 +371,19 @@ export default function Detail({
                 </div>
               </div>
             )}
+            {editingLines && (
+              <LineEditor
+                subscription={r}
+                customer={!team}
+                onClose={() => setEditingLines(false)}
+                onSaved={() => {
+                  setEditingLines(false);
+                  onChanged(
+                    "Product lines updated for the next billing cycle.",
+                  );
+                }}
+              />
+            )}
             <div className="detail-actions">
               {invoice ? (
                 <>
@@ -426,6 +443,16 @@ export default function Detail({
                 </>
               ) : (
                 <>
+                  {r.status !== "closed" &&
+                    (team || ["active", "paused"].includes(r.status)) && (
+                      <Button
+                        variant="secondary"
+                        icon={Settings2}
+                        onClick={() => setEditingLines((v) => !v)}
+                      >
+                        {team ? "Manage products" : "Manage add-ons"}
+                      </Button>
+                    )}
                   {team && r.status === "draft" && (
                     <Button
                       icon={Send}
@@ -506,5 +533,176 @@ export default function Detail({
         )
       )}
     </Modal>
+  );
+}
+
+function LineEditor({
+  subscription,
+  customer,
+  onClose,
+  onSaved,
+}: {
+  subscription: Row;
+  customer: boolean;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const { data, error: catalogError } = useResource<{ items: Row[] }>(
+    "/subscription-catalog",
+  );
+  const [lines, setLines] = useState<Row[]>(
+    subscription.lines.map((l: Row, i: number) => ({ ...l, id: i })),
+  );
+  const [selected, setSelected] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const products = data?.items || [];
+  const choices = products.filter(
+    (p) =>
+      (!customer || p.type === "addon") &&
+      !lines.some((l) => l.product_id === p.id),
+  );
+  const total =
+    subscription.plan_price +
+    lines.reduce((n, l) => n + l.unit_price * l.quantity, 0);
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await api(`/subscriptions/${subscription.id}/lines`, "PUT", {
+        lines: lines.map((l) => ({
+          product_id: l.product_id,
+          variant: l.variant || "",
+          quantity: l.quantity,
+        })),
+      });
+      onSaved();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <form className="line-change-form" onSubmit={submit}>
+      <h3>
+        {customer
+          ? "Make your add-ons work for you."
+          : "Adjust your product lines."}
+      </h3>
+      <p className="form-note">
+        Changes apply to the next unbilled cycle (
+        {dateLabel(subscription.next_billing)}). Existing invoices keep their
+        original amounts. There is no mid-cycle proration.
+      </p>
+      {(error || catalogError) && <ErrorBox message={error || catalogError} />}
+      <div className="line-change-list">
+        {lines.map((line, index) => {
+          const canEdit =
+            !customer ||
+            products.find((p) => p.id === line.product_id)?.type === "addon";
+          return (
+            <div key={line.id}>
+              <span>
+                <b>{line.name}</b>
+                <small>
+                  {money(line.unit_price)} per unit
+                  {line.variant ? ` · ${line.variant}` : ""}
+                </small>
+              </span>
+              <label>
+                Quantity
+                <input
+                  type="number"
+                  min="1"
+                  max="10000"
+                  aria-label={`${line.name} quantity`}
+                  disabled={!canEdit}
+                  required
+                  value={line.quantity}
+                  onChange={(e) =>
+                    setLines((ls) =>
+                      ls.map((l, i) =>
+                        i === index
+                          ? { ...l, quantity: Number(e.target.value) }
+                          : l,
+                      ),
+                    )
+                  }
+                />
+              </label>
+              <button
+                className="icon-btn"
+                type="button"
+                disabled={!canEdit || lines.length === 1}
+                aria-label={`Remove ${line.name}`}
+                onClick={() =>
+                  setLines((ls) => ls.filter((_, i) => i !== index))
+                }
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      {choices.length > 0 && (
+        <div className="add-product-row">
+          <select
+            aria-label="Product to add"
+            value={selected}
+            onChange={(e) => setSelected(e.target.value)}
+          >
+            <option value="">
+              {customer ? "Choose an add-on" : "Choose a product"}
+            </option>
+            {choices.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name} · {money(p.price)}
+              </option>
+            ))}
+          </select>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={!selected}
+            icon={Plus}
+            onClick={() => {
+              const p = products.find((p) => p.id === Number(selected));
+              if (p)
+                setLines((ls) => [
+                  ...ls,
+                  {
+                    id: Date.now(),
+                    product_id: p.id,
+                    name: p.name,
+                    unit_price: p.price,
+                    quantity: 1,
+                    variant: "",
+                  },
+                ]);
+              setSelected("");
+            }}
+          >
+            Add
+          </Button>
+        </div>
+      )}
+      <div className="quote-total">
+        <span>
+          <b>{money(total)}</b> / {subscription.billing_interval}
+          <small>Before discounts and tax</small>
+        </span>
+      </div>
+      <div className="form-footer">
+        <Button type="button" variant="secondary" onClick={onClose}>
+          Cancel changes
+        </Button>
+        <Button busy={busy} type="submit" icon={Check}>
+          Save product changes
+        </Button>
+      </div>
+    </form>
   );
 }

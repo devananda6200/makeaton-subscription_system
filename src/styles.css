@@ -3843,6 +3843,56 @@ th {
 }
 
 /* Legible type and contrast at both desktop and handheld sizes. */
+.sidebar {
+  overflow-x: hidden;
+}
+.sidebar .brand {
+  font-size: 24px;
+  letter-spacing: -1px;
+}
+.line-change-form {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #e7dced;
+  background: #fcfaff;
+  border-radius: 9px;
+}
+.line-change-form h3 {
+  color: #79568f;
+  font-size: 14px;
+}
+.line-change-list > div {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 14px 0;
+}
+.line-change-list > div > span {
+  flex: 1;
+  font-size: 12px;
+  color: #78568e;
+}
+.line-change-list small {
+  display: block;
+  color: #8f779f;
+  margin-top: 4px;
+}
+.line-change-list label {
+  width: 85px;
+  font-size: 10px;
+}
+.line-change-list input {
+  min-height: 34px;
+  padding: 7px 9px;
+}
+.add-product-row {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+.add-product-row select {
+  flex: 1;
+}
 h1,
 .stat-value {
   color: #302a3e;
