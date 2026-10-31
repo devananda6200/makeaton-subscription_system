@@ -99,6 +99,16 @@ export function openDatabase(
       id INTEGER PRIMARY KEY, recipient TEXT NOT NULL, subject TEXT NOT NULL, body TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'queued', error TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')), sent_at TEXT
     );
+    CREATE TABLE IF NOT EXISTS email_attempts (
+      id INTEGER PRIMARY KEY, outbox_id INTEGER NOT NULL REFERENCES outbox(id),
+      recipient TEXT NOT NULL COLLATE NOCASE, security INTEGER NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_email_attempt_date ON email_attempts(created_at);
+    CREATE INDEX IF NOT EXISTS idx_outbox_recipient_date ON outbox(recipient COLLATE NOCASE,created_at);
+    CREATE TABLE IF NOT EXISTS abuse_limits (
+      key TEXT PRIMARY KEY, count INTEGER NOT NULL, expires_at INTEGER NOT NULL
+    );
     CREATE INDEX IF NOT EXISTS idx_subscription_due ON subscriptions(status,next_billing);
     CREATE INDEX IF NOT EXISTS idx_subscription_customer ON subscriptions(customer_id,status);
     CREATE INDEX IF NOT EXISTS idx_invoice_customer ON invoices(customer_id,issued_on);

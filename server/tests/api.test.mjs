@@ -135,6 +135,22 @@ test("API enforces roles, tenant isolation, origin checks and single-use reset l
     .prepare("SELECT body FROM outbox ORDER BY id DESC LIMIT 1")
     .get();
   const token = outbox.body.match(/reset=([a-f0-9]{64})/)[1];
+  const repeat = await request("/auth/forgot", "POST", {
+    email: "customer@brightloop.demo",
+  });
+  const unknown = await request("/auth/forgot", "POST", {
+    email: "unknown@brightloop.dev",
+  });
+  assert.deepEqual(
+    repeat.data,
+    unknown.data,
+    "reset responses do not enumerate accounts",
+  );
+  assert.equal(
+    db.prepare("SELECT COUNT(*) n FROM password_resets").get().n,
+    1,
+    "repeated requests retain the original usable reset link",
+  );
   assert.equal(
     (await request("/auth/reset", "POST", { token, password: "ChangedPass!" }))
       .status,
@@ -157,4 +173,16 @@ test("API enforces roles, tenant isolation, origin checks and single-use reset l
   );
   assert.equal(r.status, 200);
   assert.ok(Number.isInteger(r.data.mrr));
+  for (let n = 0; n < 12; n++)
+    await request("/auth/forgot", "POST", { email: "unknown@brightloop.dev" });
+  assert.equal(
+    (await request("/auth/forgot", "POST", { email: "unknown@brightloop.dev" }))
+      .status,
+    429,
+  );
+  assert.equal(
+    db.prepare("SELECT COUNT(*) n FROM abuse_limits").get().n,
+    1,
+    "IP throttling is persisted in the database",
+  );
 });

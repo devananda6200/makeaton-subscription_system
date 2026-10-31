@@ -1,7 +1,27 @@
 import nodemailer from "nodemailer";
-import { insert } from "./db.mjs";
+import { insert, transaction } from "./db.mjs";
+import { HttpError } from "./domain.mjs";
+
+// Shared across all public routes and persisted across free-host restarts.
+export function canQueueEmail(db, recipient) {
+  const counts = db
+    .prepare(
+      `SELECT COUNT(*) n,
+    SUM(CASE WHEN recipient=? COLLATE NOCASE THEN 1 ELSE 0 END) recipient_count,
+    SUM(CASE WHEN recipient=? COLLATE NOCASE AND created_at>datetime('now','-5 minutes') THEN 1 ELSE 0 END) recent
+    FROM outbox WHERE created_at>=datetime('now','start of day')`,
+    )
+    .get(recipient, recipient);
+  return counts.n < 100 && counts.recipient_count < 5 && !counts.recent;
+}
 
 export function queueEmail(db, recipient, subject, body) {
+  recipient = recipient.trim().toLowerCase();
+  if (!canQueueEmail(db, recipient))
+    throw new HttpError(
+      429,
+      "Email limit reached. Wait five minutes or try tomorrow if the daily allowance is used.",
+    );
   return insert(db, "outbox", { recipient, subject, body });
 }
 
@@ -18,6 +38,12 @@ export async function deliverOutbox(db, { fetchEmail = fetch } = {}) {
   if (emailMode() === "outbox" || sending) return;
   sending = true;
   try {
+    // A crash after provider acceptance is ambiguous: require an explicit retry,
+    // never automatically resend a message that might already have arrived.
+    db.prepare(
+      `UPDATE outbox SET status='failed',error='Delivery outcome unknown after interruption. Check the inbox before retrying.'
+      WHERE status='sending' AND id IN (SELECT outbox_id FROM email_attempts WHERE created_at<datetime('now','-20 minutes'))`,
+    ).run();
     const transport =
       emailMode() === "smtp"
         ? nodemailer.createTransport({
@@ -33,26 +59,21 @@ export async function deliverOutbox(db, { fetchEmail = fetch } = {}) {
         : null;
     for (const mail of db
       .prepare(
-        "SELECT * FROM outbox WHERE status='queued' ORDER BY id LIMIT 20",
+        "SELECT * FROM outbox WHERE status='queued' ORDER BY (body LIKE '%?reset=%') DESC,id LIMIT 100",
       )
       .all()) {
       try {
         const recipient = mail.recipient.trim().toLowerCase();
-        const allowed = (process.env.EMAIL_ALLOWED_RECIPIENTS || "")
-          .split(",")
-          .map((value) => value.trim().toLowerCase())
-          .filter(Boolean);
         if (
           /@(?:[^@]*\.)?(?:example\.(?:com|org|net)|invalid|test|demo)$/.test(
             recipient,
           )
         )
           throw new Error("Fictional recipient: delivery disabled.");
-        if (
-          (process.env.DEMO_MODE === "true" || allowed.length) &&
-          !allowed.includes(recipient)
-        )
-          throw new Error("Recipient is not enabled for this public demo.");
+        if (!db.prepare("SELECT id FROM users WHERE email=?").get(recipient))
+          throw new Error(
+            "Recipient must have a registered Brightloop account.",
+          );
         if (
           mail.body.includes("?reset=") &&
           Date.parse(mail.created_at + "Z") < Date.now() - 30 * 60000
@@ -60,12 +81,49 @@ export async function deliverOutbox(db, { fetchEmail = fetch } = {}) {
           throw new Error(
             "Reset link expired. Request a fresh password reset.",
           );
-        const sentToday = db
-          .prepare(
-            "SELECT COUNT(*) n FROM outbox WHERE status='sent' AND date(sent_at)=date('now')",
-          )
-          .get().n;
-        if (sentToday >= 50) break; // Conservatively below Brevo Free's daily allowance.
+        if (Date.parse(mail.created_at + "Z") < Date.now() - 86400000)
+          throw new Error(
+            "Email provider delivery window expired. Send a fresh invoice instead.",
+          );
+        // Reserve BEFORE calling the provider. Failed/ambiguous requests consume
+        // budget too; concurrent workers and manual retries cannot bypass it.
+        const claimed = transaction(db, () => {
+          const security = mail.body.includes("?reset=") ? 1 : 0;
+          const counts = db
+            .prepare(
+              `SELECT COUNT(*) n,
+            SUM(CASE WHEN recipient=? THEN 1 ELSE 0 END) recipient_count,
+            SUM(CASE WHEN recipient=? AND created_at>datetime('now','-5 minutes') THEN 1 ELSE 0 END) recent
+            FROM email_attempts WHERE created_at>=datetime('now','start of day')`,
+            )
+            .get(recipient, recipient);
+          if (
+            counts.n >= (security ? 50 : 40) ||
+            counts.recipient_count >= 5 ||
+            counts.recent
+          ) {
+            db.prepare(
+              "UPDATE outbox SET error=? WHERE id=? AND status='queued'",
+            ).run(
+              "Delivery deferred by the free email allowance or five-minute recipient cooldown.",
+              mail.id,
+            );
+            return false;
+          }
+          const updated = db
+            .prepare(
+              "UPDATE outbox SET status='sending',error=NULL WHERE id=? AND status='queued'",
+            )
+            .run(mail.id);
+          if (!updated.changes) return false;
+          insert(db, "email_attempts", {
+            outbox_id: mail.id,
+            recipient,
+            security,
+          });
+          return true;
+        });
+        if (!claimed) continue;
         if (transport) {
           await transport.sendMail({
             from: process.env.MAIL_FROM,

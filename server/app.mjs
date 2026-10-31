@@ -1,6 +1,6 @@
 import express from "express";
 import helmet from "helmet";
-import { rateLimit } from "express-rate-limit";
+import { rateLimit, ipKeyGenerator } from "express-rate-limit";
 import { z, ZodError } from "zod";
 import { resolve } from "node:path";
 import { existsSync } from "node:fs";
@@ -41,7 +41,12 @@ import {
   printableInvoice,
 } from "./billing.mjs";
 import { report, csvCell } from "./reports.mjs";
-import { queueEmail, deliverOutbox, emailMode } from "./mail.mjs";
+import {
+  queueEmail,
+  canQueueEmail,
+  deliverOutbox,
+  emailMode,
+} from "./mail.mjs";
 
 const team = roles("admin", "staff");
 const admin = roles("admin");
@@ -112,6 +117,31 @@ export function createApp(db, { demo = false } = {}) {
     legacyHeaders: false,
     message: { error: "Too many attempts. Try again in 15 minutes." },
   });
+  const emailAbuseLimit = (req, res, next) => {
+    const now = Date.now();
+    const key = tokenHash(`email:${ipKeyGenerator(req.ip || "unknown")}`);
+    const permitted = transaction(db, () => {
+      db.prepare("DELETE FROM abuse_limits WHERE expires_at<=?").run(now);
+      const row = db
+        .prepare("SELECT count FROM abuse_limits WHERE key=?")
+        .get(key);
+      if (row?.count >= 10) return false;
+      db.prepare(
+        `INSERT INTO abuse_limits(key,count,expires_at) VALUES (?,1,?)
+        ON CONFLICT(key) DO UPDATE SET count=count+1`,
+      ).run(key, now + 3600000);
+      return true;
+    });
+    if (!permitted) {
+      res.set("Retry-After", "3600");
+      return res
+        .status(429)
+        .json({
+          error: "Too many email/account requests. Try again in an hour.",
+        });
+    }
+    next();
+  };
   app.get("/api/health", (_req, res) =>
     res.json({ status: "ok", service: "brightloop" }),
   );
@@ -142,47 +172,55 @@ export function createApp(db, { demo = false } = {}) {
     setSession(db, res, user);
     res.json({ user: publicUser(user) });
   });
-  app.post("/api/auth/register", authLimit, async (req, res) => {
-    const data = z
-      .object({
-        name: z.string().trim().min(2).max(120),
-        email,
-        password,
-        company: z.string().trim().max(160).default(""),
-      })
-      .parse(req.body);
-    const hash = await hashPassword(data.password);
-    const user = transaction(db, () => {
-      assert(
-        !db.prepare("SELECT id FROM users WHERE email=?").get(data.email) &&
-          !db.prepare("SELECT id FROM customers WHERE email=?").get(data.email),
-        "This email is already registered. Sign in, reset your password, or request a portal invitation.",
-        409,
-      );
-      const customerId = insert(db, "customers", {
-        name: data.name,
-        email: data.email,
-        company: data.company,
+  app.post(
+    "/api/auth/register",
+    authLimit,
+    emailAbuseLimit,
+    async (req, res) => {
+      const data = z
+        .object({
+          name: z.string().trim().min(2).max(120),
+          email,
+          password,
+          company: z.string().trim().max(160).default(""),
+        })
+        .parse(req.body);
+      const hash = await hashPassword(data.password);
+      const user = transaction(db, () => {
+        assert(
+          !db.prepare("SELECT id FROM users WHERE email=?").get(data.email) &&
+            !db
+              .prepare("SELECT id FROM customers WHERE email=?")
+              .get(data.email),
+          "This email is already registered. Sign in, reset your password, or request a portal invitation.",
+          409,
+        );
+        const customerId = insert(db, "customers", {
+          name: data.name,
+          email: data.email,
+          company: data.company,
+        });
+        const id = insert(db, "users", {
+          name: data.name,
+          email: data.email,
+          password_hash: hash,
+          role: "customer",
+          customer_id: customerId,
+        });
+        return db.prepare("SELECT * FROM users WHERE id=?").get(id);
       });
-      const id = insert(db, "users", {
-        name: data.name,
-        email: data.email,
-        password_hash: hash,
-        role: "customer",
-        customer_id: customerId,
-      });
-      return db.prepare("SELECT * FROM users WHERE id=?").get(id);
-    });
-    setSession(db, res, user);
-    res.status(201).json({ user: publicUser(user) });
-  });
-  app.post("/api/auth/forgot", authLimit, (req, res) => {
+      setSession(db, res, user);
+      res.status(201).json({ user: publicUser(user) });
+    },
+  );
+  app.post("/api/auth/forgot", authLimit, emailAbuseLimit, (req, res) => {
     const data = z.object({ email }).parse(req.body);
     const user = db
       .prepare("SELECT id FROM users WHERE email=?")
       .get(data.email);
     if (user)
       transaction(db, () => {
+        if (!canQueueEmail(db, data.email)) return;
         const token = randomToken();
         db.prepare(
           "DELETE FROM password_resets WHERE user_id=? OR expires_at<?",
@@ -201,7 +239,7 @@ export function createApp(db, { demo = false } = {}) {
       });
     res.json({
       message:
-        "If an account exists, a reset link has been queued for its registered email.",
+        "If an account exists and email limits allow, a reset link will be sent. Check your inbox and spam folder; wait five minutes before requesting again.",
     });
     void deliverOutbox(db);
   });
@@ -357,13 +395,22 @@ export function createApp(db, { demo = false } = {}) {
       ),
     );
   });
-  app.post("/api/invoices/:id/action", team, (req, res) => {
-    const action = z
-      .enum(["confirm", "cancel", "send", "remind"])
-      .parse(req.body.action);
-    res.json(invoiceAction(db, safeId(req.params.id), action, req.user));
-    void deliverOutbox(db);
-  });
+  app.post(
+    "/api/invoices/:id/action",
+    team,
+    (req, res, next) => {
+      if (["send", "remind"].includes(req.body.action))
+        return emailAbuseLimit(req, res, next);
+      next();
+    },
+    (req, res) => {
+      const action = z
+        .enum(["confirm", "cancel", "send", "remind"])
+        .parse(req.body.action);
+      res.json(invoiceAction(db, safeId(req.params.id), action, req.user));
+      void deliverOutbox(db);
+    },
+  );
   app.post("/api/invoices/:id/payments", team, (req, res) =>
     res
       .status(201)
@@ -454,49 +501,54 @@ export function createApp(db, { demo = false } = {}) {
         ),
     }),
   );
-  app.post("/api/customers/:id/invite", admin, async (req, res) => {
-    const customer = db
-      .prepare("SELECT * FROM customers WHERE id=?")
-      .get(safeId(req.params.id));
-    assert(customer, "Customer not found", 404);
-    assert(
-      !db.prepare("SELECT id FROM users WHERE email=?").get(customer.email),
-      "This email already has an account; use password reset instead",
-      409,
-    );
-    const hash = await hashPassword(randomUUID() + "Aa!");
-    transaction(db, () => {
-      const id = insert(db, "users", {
-        name: customer.name,
-        email: customer.email,
-        role: "customer",
-        customer_id: customer.id,
-        password_hash: hash,
-      });
-      const token = randomToken();
-      insert(db, "password_resets", {
-        token_hash: tokenHash(token),
-        user_id: id,
-        expires_at: Date.now() + 30 * 60000,
-      });
-      queueEmail(
-        db,
-        customer.email,
-        "Your Brightloop portal invitation",
-        `Welcome ${customer.name}! Set your password within 30 minutes:\n${process.env.APP_URL || "http://localhost:5173"}/?reset=${token}`,
+  app.post(
+    "/api/customers/:id/invite",
+    admin,
+    emailAbuseLimit,
+    async (req, res) => {
+      const customer = db
+        .prepare("SELECT * FROM customers WHERE id=?")
+        .get(safeId(req.params.id));
+      assert(customer, "Customer not found", 404);
+      assert(
+        !db.prepare("SELECT id FROM users WHERE email=?").get(customer.email),
+        "This email already has an account; use password reset instead",
+        409,
       );
-      audit(
-        db,
-        req.user,
-        "Invited customer to portal",
-        "customer",
-        customer.id,
-        customer.name,
-      );
-    });
-    res.json({ message: "Portal invitation queued" });
-    void deliverOutbox(db);
-  });
+      const hash = await hashPassword(randomUUID() + "Aa!");
+      transaction(db, () => {
+        const id = insert(db, "users", {
+          name: customer.name,
+          email: customer.email,
+          role: "customer",
+          customer_id: customer.id,
+          password_hash: hash,
+        });
+        const token = randomToken();
+        insert(db, "password_resets", {
+          token_hash: tokenHash(token),
+          user_id: id,
+          expires_at: Date.now() + 30 * 60000,
+        });
+        queueEmail(
+          db,
+          customer.email,
+          "Your Brightloop portal invitation",
+          `Welcome ${customer.name}! Set your password within 30 minutes:\n${process.env.APP_URL || "http://localhost:5173"}/?reset=${token}`,
+        );
+        audit(
+          db,
+          req.user,
+          "Invited customer to portal",
+          "customer",
+          customer.id,
+          customer.name,
+        );
+      });
+      res.json({ message: "Portal invitation queued" });
+      void deliverOutbox(db);
+    },
+  );
   app.get("/api/activity", team, (_req, res) =>
     res.json({
       items: db
@@ -518,7 +570,7 @@ export function createApp(db, { demo = false } = {}) {
       mode: emailMode(),
     }),
   );
-  app.post("/api/outbox/:id/retry", admin, (req, res) => {
+  app.post("/api/outbox/:id/retry", admin, emailAbuseLimit, (req, res) => {
     const mail = db
       .prepare("SELECT id FROM outbox WHERE id=?")
       .get(safeId(req.params.id));
