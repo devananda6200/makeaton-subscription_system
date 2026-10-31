@@ -119,7 +119,7 @@ for k,start_s in enumerate(np.arange(0,time,8)):
   if n<=0:continue
   t=np.arange(n)/sr;f=chords[k%4][beat]*4;bell=.018*np.sin(2*np.pi*f*t)*np.exp(-t*3)*np.minimum(t/.015,1)
   audio[a0:a0+n,beat%2]+=bell;audio[a0:a0+n,1-beat%2]+=bell*.45
-fade=np.minimum(np.arange(count)/sr/4,1)*np.minimum((count-np.arange(count))/sr/5,1);audio*=fade[:,None]
+fade=np.minimum(np.arange(count)/sr/4,1)*np.minimum((count-np.arange(count))/sr/5,1);audio*=3*fade[:,None]
 with wave.open(str(WORK/'score.wav'),'wb') as w:w.setnchannels(2);w.setsampwidth(2);w.setframerate(sr);w.writeframes((np.clip(audio,-1,1)*32767).astype('<i2').tobytes())
 def stamp(s):return f'{int(s//3600):02d}:{int(s%3600//60):02d}:{int(s%60):02d},000'
 (OUT/'Brightloop-captions.srt').write_text('\n\n'.join(f"{i+1}\n{stamp(r['start'])} --> {stamp(r['start']+r['duration'])}\n{r['title']}\n{r['caption']}" for i,r in enumerate(timeline)),encoding='utf8')

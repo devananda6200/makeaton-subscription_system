@@ -1,0 +1,335 @@
+{
+  "capture_method": "Codex in-app browser screenshots of real authenticated UI interactions",
+  "local_app": "http://127.0.0.1:3002",
+  "live_evidence": "https://brightloop-subscriptions.onrender.com/#/outbox",
+  "captures": [
+    {
+      "file": "01-login.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "2e3d6d09f23e4544134edd5a28305fe820e7788c67d981b6c06b26f6b59d70fa"
+    },
+    {
+      "file": "02-credentials.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "3cad67daa80ca56d672ad735cf85e1369b6d62211a2b00f17920f603a931dba4"
+    },
+    {
+      "file": "03-overview.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "aba3c3f25716eebfb1b221180088a3b69b6077c98cb889f7eb0aede845639504"
+    },
+    {
+      "file": "04-products.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "f4c431874e11a39ae0a00c9a5825895e32a1c5694797588feab1f891b699e79e"
+    },
+    {
+      "file": "05-product-detail.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "6f07fb9b3754b5de76d40289ddbd3596b98d65bcbec94a5a62b199c8fbae464f"
+    },
+    {
+      "file": "06-plans.png",
+      "size": [
+        1905,
+        1127
+      ],
+      "sha256": "ecf36669fa378d1f6245b3566ab1c3b00f2cde68c77a0d486ae97d3b24593def"
+    },
+    {
+      "file": "07-plan-rules.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "d640801fc4dd1cdc7ef530fcec83c74bdb6ff674295d0d980bae059bbf44ff5d"
+    },
+    {
+      "file": "08-templates.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "82bf51fffa68af60f1d910cc5ae4af4b692752bfb65b4f1b2e1a21a982d4ff01"
+    },
+    {
+      "file": "09-template-draft.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "fbc781422386d77290397059e76c8898345d58019e3e3e67666a1cff33010e31"
+    },
+    {
+      "file": "10-subscriptions.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "6156d9f3a120c967c9aa7d297bacb2a1c2760aea9ea167cd95a8fb45abcbec0f"
+    },
+    {
+      "file": "11-lifecycle-draft.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "25a8f545fe749fe98947eb11eaeac99109d0f000704d9f8d4f37c845d0a24fa4"
+    },
+    {
+      "file": "12-lifecycle-quotation.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "d538532b9ba60aefcf07a939a5bc1f10a2cf06f59c1a4a42430891e8cd704b0e"
+    },
+    {
+      "file": "13-lifecycle-confirmed.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "ee0c97a42252f8af85a009de458a276eaa779d81938311cb3ec08a83b96e51c5"
+    },
+    {
+      "file": "14-lifecycle-active.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "4fa1dd13e7b8d461217729574cc973c3d8dd6ecd6a80f8c763a927e5978dde7f"
+    },
+    {
+      "file": "15-discounts.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "4a8cd1c8d91d48d854234dc9413c312afc51bc284d1a1253023c2365416a6dc2"
+    },
+    {
+      "file": "16-discount-rules.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "8b42677c5be59fbfcb399bcc2975991c8d26996af25e9a73118da1bb10d47287"
+    },
+    {
+      "file": "17-billing-before.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "a773cb8d338f25d64fbbbc910eba45ea4a525b8e04c41b186521ca9c508d591d"
+    },
+    {
+      "file": "18-billing-run.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "47119f17019a9718cc969c5325c31ae30189e08adafc7b436363094bab1d79f9"
+    },
+    {
+      "file": "19-billing-result.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "367694d7709411faccebc558b41128d475d9bcf42977a0868825220a7509c35a"
+    },
+    {
+      "file": "20-invoice-breakdown.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "482cfcaee89c9dec9ac8c823112013c78cdd62085015f3aaf129468193e15945"
+    },
+    {
+      "file": "21-invoice-confirmed.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "a47a47ef274d7bef5f2ab6973149c4c73f035e3381c05885c7abc7dcf98e5feb"
+    },
+    {
+      "file": "22-payment-form.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "fd8ffe99795d5b068576eeb67e66251b80e2460267cb0249a110a2ed2f29dad2"
+    },
+    {
+      "file": "23-invoice-paid.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "b4572bb46ce9c5da823620d64cd154ae1394adfb8c4d8704336e99568ac5f924"
+    },
+    {
+      "file": "24-print-invoice.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "5f99676736c0baaa202507d616c9852b28d1ee060e787a53a1fbd915d62ac9a9"
+    },
+    {
+      "file": "25-payments.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "817d8ae9992211f02e460954254fd58091bb7a95451dd82b204b11a6b6a61489"
+    },
+    {
+      "file": "26-customers.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "1cf69097f1823c0f46d963a9ec748ee6cba8545122c9cb7857176ece16867b15"
+    },
+    {
+      "file": "27-reports.png",
+      "size": [
+        1905,
+        1127
+      ],
+      "sha256": "a6a27742749ecd65f9ee71f47d5f3323a4044cf9b541d43c0e43e34e8c744a67"
+    },
+    {
+      "file": "28-filtered-report.png",
+      "size": [
+        1905,
+        1127
+      ],
+      "sha256": "4d1e4ab65a68cea980c78b9097511d9efaac72671d5bee612bc377332cefe012"
+    },
+    {
+      "file": "29-audit.png",
+      "size": [
+        1905,
+        1127
+      ],
+      "sha256": "6cda94a3a9b3dec71bfee5476dae36f8c2b66007396dcaa205ea5973a5f9a413"
+    },
+    {
+      "file": "30-settings.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "21c9370af00d006116dcde6d189bf930b855c8189cf39201b5fae91a92dc09be"
+    },
+    {
+      "file": "31-team.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "8b7ade48a1299f0e5ffc029ebcff4ccd45c67ca995492303cb689fea572990a3"
+    },
+    {
+      "file": "32-search.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "c51c961b744d9382d99a9b447965edcd51686be5cd9bf43e7105552f427a2e22"
+    },
+    {
+      "file": "33-registration.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "8fbcc1f5d2cc62340cdc4f9ad4a75d29823183e2446ea966068bd55251a7f84c"
+    },
+    {
+      "file": "34-password-reset.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "e8228531ad5120dda16a97b9d2fb1b1e01e70a8f293cde09a5ffbe6b25da613b"
+    },
+    {
+      "file": "35-customer-login.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "dfbe1ffc97ba7af1af4fa51e3fa66a34d36b0a5dcd10ec6d2daf64f7e4a3d2d1"
+    },
+    {
+      "file": "36-customer-portal.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "658cf0195cf74e4af57875d4acd30217f2881d46e2fd6c1c27fe35e19bd2ad01"
+    },
+    {
+      "file": "37-customer-controls.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "52db4785026f30c279d231d30a4a11fe9ee5879966e7a8a120fbb8b62668b37d"
+    },
+    {
+      "file": "38-addons.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "3720d573f9f6fc3bf5b79c972fa4c9840a012c0947accb5e4eccc131fc70b038"
+    },
+    {
+      "file": "39-paused.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "d71e3bef0e757a1d86bf950cf066fac85180010851a6ad51faf5d90e3edf84ba"
+    },
+    {
+      "file": "40-renewal.png",
+      "size": [
+        1920,
+        1136
+      ],
+      "sha256": "fae3aa3b6d2a36662e8adb6fdd2dd7695ce8e4a67fab84a4092a73ffc66feaaa"
+    },
+    {
+      "file": "41-live-email.png",
+      "size": [
+        1265,
+        712
+      ],
+      "sha256": "1f8617231d14859176d5ec0e86225e4841b8ecd24d639359b57c3055b1c2c7f6"
+    }
+  ]
+}

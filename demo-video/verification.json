@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-31",
+  "runtime_seconds": 223,
+  "decoded_master_sample_times": [
+    4,
+    12,
+    22,
+    41,
+    64,
+    92,
+    110,
+    129,
+    153,
+    180,
+    207,
+    219
+  ],
+  "master_frame_count": 13380,
+  "upload_full_decode_errors": 0,
+  "soundtrack_mean_db": -22.1,
+  "soundtrack_peak_db": -11.6,
+  "browser_viewport_reset": true,
+  "videos": [
+    {
+      "file": "Brightloop-Product-Demo-4K60.mp4",
+      "bytes": 480908892,
+      "sha256": "767fc9e9fd11aa2218a28bfd8e7facf1bcebcbfe9c2aecf62909024b63e163e9",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 3840,
+            "height": 2880,
+            "r_frame_rate": "60/1"
+          },
+          {
+            "codec_name": "aac",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "223.000000",
+          "size": "480908892"
+        }
+      }
+    },
+    {
+      "file": "Brightloop-Product-Demo-Upload.mp4",
+      "bytes": 124302524,
+      "sha256": "01e03a3e85cbcffe980ed90f610514f6a1745d8374979c12339d93019c7b4562",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1440,
+            "r_frame_rate": "60/1"
+          },
+          {
+            "codec_name": "aac",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "223.000000",
+          "size": "124302524"
+        }
+      }
+    }
+  ]
+}
