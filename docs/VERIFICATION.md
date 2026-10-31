@@ -63,7 +63,6 @@ Public Render hosting is verified below. No claim of real card processing is mad
 - Base estimate shown by Render: $7/month compute + $0.25/month disk, excluding additional usage/taxes.
 - Live dashboard evidence: [screenshot](assets/render-live.png).
 
-
 ## Free hosting and real email — 31 October 2026
 
 - Render deploy `dep-dbiq9mvlk1mc73felqrg` reached `live` on `52a70d8`.
@@ -81,3 +80,16 @@ Render deploy `dep-dbiqbess728c7381676g` is live. The browser now shows four act
 subscriptions, MRR of INR 11,092.08, and two payments totaling INR 3,231.07.
 All 16 tests pass on both local drivers, with an additional check against the
 real remote database. [Current demo screenshot](assets/free-live-demo.png).
+
+## Registered-recipient email and abuse limits — 31 October 2026
+
+This checkpoint supersedes the earlier recipient allowlist and successful-send-only quota.
+
+- `7ba1ba7`: registered recipients, persistent queue/IP/attempt limits, transactional delivery reservations, reset cooldown, and failure/retry protections.
+- `38cb0e3`: user-facing outbox guidance and deployment documentation.
+- All 18 tests passed on both Node SQLite and local libSQL, including non-allowlisted registered recipients, blocked strangers/fictional addresses, expired links, failed-send budgets, retry throttling, security capacity, queue bounds, generic reset responses, retained reset links and persistent IP throttling.
+- Production build and production dependency audit passed (zero vulnerabilities). GitHub CI passed for both commits.
+- Render deployment `dep-dbiqflou01pc73dm247g` reached `live` on `38cb0e3`. Service remains Free.
+- Live health, public admin login and latest frontend asset passed. Two consecutive requests for the authorized inbox produced exactly one new reset email, accepted by Brevo and independently confirmed in Gmail INBOX. No security tokens were exposed in the public outbox.
+- Four customers, four subscriptions and four invoices remain; no test accounts were added to the live demo. Registered-recipient expansion and invoice quota edge cases were tested with mocked provider delivery, without sending to third-party inboxes.
+- [Live outbox evidence](assets/registered-email-live.png).
