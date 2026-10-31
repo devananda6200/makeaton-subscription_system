@@ -155,58 +155,8 @@ export async function initializeData(db, demo) {
         { product_id: 4, quantity: 1, variant: "" },
       ]),
     });
-    const companies = [
-      "Acme Studio",
-      "Orbit Labs",
-      "Pixel & Co.",
-      "Northstar",
-      "Horizon Works",
-      "CloudNine",
-      "Apex Digital",
-      "Studio Linear",
-      "Kindred Collective",
-      "Nimble Technologies",
-      "Paperplane",
-      "Form & Function",
-      "Ember Labs",
-      "Evergreen Studio",
-      "Monday Makers",
-      "Goodfolk",
-      "Atlas Creative",
-      "Summit Systems",
-      "Clover Commerce",
-      "Tandem Design",
-      "Craft & Code",
-      "Mosaic Studio",
-      "Lumen Ventures",
-      "Fieldwork",
-    ];
-    const names = [
-      "Alex Morgan",
-      "Priya Sharma",
-      "Jamie Chen",
-      "Sam Rivera",
-      "Riley Brooks",
-      "Avery Singh",
-      "Jordan Park",
-      "Taylor James",
-      "Casey Patel",
-      "Morgan Lee",
-      "Drew Wilson",
-      "Robin Shah",
-      "Charlie Kim",
-      "Dakota Reed",
-      "Quinn Das",
-      "Cameron West",
-      "Skyler Roy",
-      "Harper Stone",
-      "Reese Taylor",
-      "Rowan Kapoor",
-      "Finley Ellis",
-      "Sage Kumar",
-      "Blake Davis",
-      "Parker Jain",
-    ];
+    const companies = ["Acme Studio", "Orbit Labs", "Pixel & Co.", "Northstar"];
+    const names = ["Alex Morgan", "Priya Sharma", "Jamie Chen", "Sam Rivera"];
     companies.forEach((company, i) =>
       insert(db, "customers", {
         name: names[i],
@@ -238,14 +188,14 @@ export async function initializeData(db, demo) {
     });
   });
   const admin = db.prepare("SELECT * FROM users WHERE role='admin'").get();
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 4; i++) {
     const planId = i % 8 === 0 ? 3 : i % 3 === 0 ? 2 : 1;
     const sub = createSubscription(
       db,
       {
-        customer_id: (i % 24) + 1,
+        customer_id: i + 1,
         plan_id: planId,
-        start_date: addDays(day, -165 + (i % 6) * 6),
+        start_date: addDays(day, -24 + i * 2),
         expiry_date: addDays(day, 90 + i * 4),
         payment_terms: 14,
         lines: [
@@ -259,14 +209,7 @@ export async function initializeData(db, demo) {
       },
       admin,
     );
-    const status =
-      i >= 26
-        ? "draft"
-        : i >= 24
-          ? "quotation"
-          : i >= 22
-            ? "confirmed"
-            : "active";
+    const status = i === 3 ? "quotation" : "active";
     db.prepare("UPDATE subscriptions SET status=? WHERE id=?").run(
       status,
       sub.id,
@@ -304,8 +247,8 @@ export async function initializeData(db, demo) {
       invoice.id,
     );
     invoiceAction(db, invoice.id, "confirm", admin);
-    if (invoice.cycle_date < addDays(day, -35) || i % 4 !== 0) {
-      const partial = invoice.cycle_date >= addDays(day, -35) && i % 7 === 0;
+    if (i !== 0) {
+      const partial = i === 2;
       recordPayment(
         db,
         invoice.id,
@@ -320,10 +263,6 @@ export async function initializeData(db, demo) {
       );
     }
   });
-  db.prepare(
-    "UPDATE subscriptions SET status='paused' WHERE id IN (20,21)",
-  ).run();
-  db.prepare("UPDATE subscriptions SET status='closed' WHERE id=22").run();
   insert(db, "audit_log", {
     user_id: admin.id,
     actor: admin.name,

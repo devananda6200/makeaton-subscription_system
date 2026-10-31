@@ -26,6 +26,6 @@ services:
       - key: TRUST_PROXY
         value: "1"
       - key: DATABASE_PATH
-        value: /opt/render/project/src/data/brightloop-demo.db
+        value: /opt/render/project/src/data/brightloop-demo-small.db
       - key: DEMO_MODE
         value: "true"

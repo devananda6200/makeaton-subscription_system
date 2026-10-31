@@ -85,3 +85,7 @@ Port 465 uses immediate TLS; other ports use STARTTLS behavior. Use a verified s
 
 This is a tested hackathon application with INR/UTC billing and single-instance persistence. Card acquiring, refunds, credit notes, multi-company tenancy, jurisdiction-specific tax compliance, distributed jobs, and accrual accounting require additional implementation and operational checks. Public demo hosting is verified at https://brightloop-subscriptions.onrender.com (see VERIFICATION.md). Real SMTP delivery and production restore drills remain unverified.
 
+
+## Compact public demo
+
+The demo seed contains four customers, four subscriptions (three active and one quotation), and three invoices with unpaid, paid, and partially paid examples. Render now uses `brightloop-demo-small.db` on the existing disk. The previous `brightloop-demo.db` remains untouched for recovery; it is not loaded by the app.
