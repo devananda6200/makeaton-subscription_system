@@ -63,3 +63,21 @@ Public Render hosting is verified below. No claim of real card processing is mad
 - Base estimate shown by Render: $7/month compute + $0.25/month disk, excluding additional usage/taxes.
 - Live dashboard evidence: [screenshot](assets/render-live.png).
 
+
+## Free hosting and real email — 31 October 2026
+
+- Render deploy `dep-dbiq9mvlk1mc73felqrg` reached `live` on `52a70d8`.
+- Render service API confirms `plan=free` and no attached disk. The previous paid disk was deleted after user confirmation, remote migration, and a local integrity-checked backup.
+- The live app preserved four customers, four subscriptions, four invoices and two payments across migration/redeploy. The fourth invoice was created through the real subscription workflow for email verification.
+- Turso remote writes and transaction rollback passed; all 15 tests passed with both Node SQLite and local libSQL drivers. CI now exercises both drivers. Production build passed.
+- HTTPS health, browser admin login, customer/subscription/invoice listing, report queries, and Brevo mode all passed on the Free deployment.
+- Portal invitation, invoice INV-00004, and password-reset email were accepted by Brevo and independently found in the approved Gmail inbox. No reset-token values are recorded here.
+- The public admin outbox hides security links; a test verifies this behavior. Delivery is limited to explicitly approved recipients and 50 successful sends per UTC day.
+- The current Free setup supersedes the earlier paid hosting estimate. Historical charges already accrued are separate. Free Render cold starts and delayed scheduling while asleep remain expected.
+
+Final report verification: remote libSQL named bindings differed from local
+SQLite behavior. Commit `e364aa2` converts report filters to positional bindings;
+Render deploy `dep-dbiqbess728c7381676g` is live. The browser now shows four active
+subscriptions, MRR of INR 11,092.08, and two payments totaling INR 3,231.07.
+All 16 tests pass on both local drivers, with an additional check against the
+real remote database. [Current demo screenshot](assets/free-live-demo.png).

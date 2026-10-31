@@ -10,9 +10,9 @@ flowchart LR
   API --> Auth[Sessions and role checks]
   API --> Domain[Subscription and billing services]
   Scheduler[Hourly scheduler] --> Domain
-  Domain --> DB[(SQLite WAL)]
+  Domain --> DB[(SQLite locally / Turso hosted libSQL)]
   Domain --> Outbox[Persistent email outbox]
-  Outbox --> SMTP[Optional SMTP transport]
+  Outbox --> SMTP[Brevo HTTPS / optional SMTP]
   DB --> Reports[Scoped reporting queries]
   Reports --> API
 ```
