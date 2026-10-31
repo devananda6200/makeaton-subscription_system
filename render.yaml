@@ -1,0 +1,31 @@
+# Hackathon demo: fictional data and public demo accounts only.
+# Keep exactly one instance: SQLite and billing scheduling share this process.
+services:
+  - type: web
+    name: brightloop-subscriptions
+    runtime: node
+    region: singapore
+    plan: 0.5c-512mb
+    branch: main
+    numInstances: 1
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: checksPass
+    disk:
+      name: brightloop-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: TRUST_PROXY
+        value: "1"
+      - key: DATABASE_PATH
+        value: /opt/render/project/src/data/brightloop-demo.db
+      - key: DEMO_MODE
+        value: "true"

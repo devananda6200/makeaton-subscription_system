@@ -10,6 +10,34 @@ Non-production boot defaults to fictional demo data. Copy `.env.example` to igno
 
 ## Production
 
+### Render hackathon deployment
+
+The root `render.yaml` provisions one Node 24 web service in Singapore with a
+1 GB persistent disk, `/api/health` readiness checks, and deployment after CI
+checks pass. The Express process serves both the built frontend and API.
+This is paid compute plus disk storage; review the current Render estimate.
+
+The Blueprint intentionally enables **fictional demo mode**, including the
+published demo accounts. Never enter real customer data in this public demo.
+To deploy a private workspace instead, set `DEMO_MODE=false`, change
+`DATABASE_PATH` to a fresh filename on the disk, and provide `ADMIN_EMAIL` and
+`ADMIN_PASSWORD` through Render's secret environment settings before startup.
+
+Deploy from the repository using:
+<https://dashboard.render.com/blueprint/new?repo=https://github.com/devananda6200/makeaton-subscription_system>
+
+Select the intended workspace, connect the GitHub repository if prompted, and
+review/apply the Blueprint. Verify the deploy reaches `live`, the health route
+returns HTTP 200, and login works over HTTPS. The app uses Render's
+`RENDER_EXTERNAL_URL` automatically unless `APP_URL` is explicitly supplied.
+Set `APP_URL` when adding a custom domain.
+
+Keep exactly one instance and the disk mount unchanged. Disk-backed deploys
+have a short interruption. SMTP is optional and remains unconfigured until
+credentials are supplied; messages remain in the outbox in the meantime.
+
+### Private workspace configuration
+
 Use Node 24+ or the container, exactly **one application instance**, an HTTPS reverse proxy, and a durable local database volume. Do not share a SQLite file between machines or use ephemeral storage.
 
 Configure these through the host's secret manager:
