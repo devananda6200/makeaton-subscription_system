@@ -23,8 +23,14 @@ export function report(db, user, query = {}) {
   };
   const all = (sql) => {
     const stmt = db.prepare(sql);
-    stmt.setAllowUnknownNamedParameters(true);
-    return stmt.all(params);
+    const names = new Set(
+      [...sql.matchAll(/@(\w+)/g)].map((match) => match[1]),
+    );
+    return stmt.all(
+      Object.fromEntries(
+        Object.entries(params).filter(([key]) => names.has(key)),
+      ),
+    );
   };
   const one = (sql) => all(sql)[0];
   const active = one(

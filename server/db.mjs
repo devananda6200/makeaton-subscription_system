@@ -1,14 +1,24 @@
 import { DatabaseSync } from "node:sqlite";
+import LibsqlDatabase from "libsql";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 export function openDatabase(
   filename = process.env.DATABASE_PATH || "./data/brightloop.db",
 ) {
-  if (filename !== ":memory:")
+  const remote = arguments.length === 0 && process.env.TURSO_DATABASE_URL;
+  if (remote && !process.env.TURSO_AUTH_TOKEN)
+    throw new Error("TURSO_AUTH_TOKEN is required for the remote database.");
+  if (!remote && filename !== ":memory:")
     mkdirSync(dirname(resolve(filename)), { recursive: true });
-  const db = new DatabaseSync(filename);
-  db.exec(`PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
+  const db = remote
+    ? new LibsqlDatabase(remote, { authToken: process.env.TURSO_AUTH_TOKEN })
+    : process.env.DATABASE_DRIVER === "libsql"
+      ? new LibsqlDatabase(filename)
+      : new DatabaseSync(filename);
+  db.exec("PRAGMA foreign_keys=ON;");
+  if (!remote) db.exec("PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;");
+  db.exec(`
     CREATE TABLE IF NOT EXISTS customers (
       id INTEGER PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL COLLATE NOCASE UNIQUE,
       company TEXT NOT NULL DEFAULT '', phone TEXT NOT NULL DEFAULT '', address TEXT NOT NULL DEFAULT '',
