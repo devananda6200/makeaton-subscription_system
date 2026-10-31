@@ -2,11 +2,11 @@
 
 **One workspace. Every subscription.**
 
-Brightloop turns the Subscription Management System challenge into a complete workflow: **catalog → quotation → subscription → invoice → payment → revenue insight**. Built for a clear hackathon demonstration, with persistent records and tested financial logic underneath the interface.
+Brightloop turns the Subscription Management System challenge into a complete workflow: **catalog &rarr; quotation &rarr; subscription &rarr; invoice &rarr; payment &rarr; revenue insight**. Built for a clear hackathon demonstration, with persistent records and tested financial logic underneath the interface.
 
 ![Brightloop overview with live demo metrics](docs/assets/free-live-demo.png)
 
-Live demo: https://brightloop-subscriptions.onrender.com � Render Free + Turso Free + Brevo Free. The public workspace contains four sample customers and subscriptions. See [deployment operations](docs/DEPLOYMENT.md) for quotas, cold starts, and email recipient controls.
+Live demo: https://brightloop-subscriptions.onrender.com - Render Free + Turso Free + Brevo Free. The public workspace contains four sample customers and subscriptions. See [deployment operations](docs/DEPLOYMENT.md) for quotas, cold starts, and email recipient controls.
 
 ## Start in two commands
 
