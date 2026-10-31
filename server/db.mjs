@@ -1,6 +1,6 @@
 import { DatabaseSync } from "node:sqlite";
 import LibsqlDatabase from "libsql";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 export function openDatabase(
@@ -100,6 +100,46 @@ export function openDatabase(
     CREATE INDEX IF NOT EXISTS idx_session_expiry ON sessions(expires_at);
     CREATE INDEX IF NOT EXISTS idx_audit_date ON audit_log(id DESC);
   `);
+  if (
+    remote &&
+    existsSync(filename) &&
+    !db.prepare("SELECT COUNT(*) n FROM users").get().n
+  ) {
+    const source = new DatabaseSync(filename, { readOnly: true });
+    try {
+      // Copy the current workspace once, while the old Render disk is attached.
+      // Existing remote workspaces are never overwritten on subsequent boots.
+      db.exec(
+        "CREATE TABLE IF NOT EXISTS app_meta (key TEXT PRIMARY KEY,value TEXT NOT NULL)",
+      );
+      const tables = [
+        "customers",
+        "users",
+        "taxes",
+        "products",
+        "plans",
+        "templates",
+        "subscriptions",
+        "discounts",
+        "invoices",
+        "payments",
+        "sessions",
+        "password_resets",
+        "audit_log",
+        "outbox",
+        "app_meta",
+      ];
+      transaction(db, () => {
+        for (const table of tables) {
+          for (const row of source.prepare(`SELECT * FROM ${table}`).all())
+            insert(db, table, row);
+        }
+      });
+      console.log("Existing workspace migrated to durable remote storage.");
+    } finally {
+      source.close();
+    }
+  }
   return db;
 }
 
