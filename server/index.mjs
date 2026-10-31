@@ -47,9 +47,12 @@ const timer = setInterval(scheduleBilling, 60 * 60 * 1000);
 timer.unref();
 if (!demo) scheduleBilling();
 void deliverOutbox(db);
+const emailTimer = setInterval(() => void deliverOutbox(db), 60000);
+emailTimer.unref();
 function stop() {
   stopping = true;
   clearInterval(timer);
+  clearInterval(emailTimer);
   server.close(async () => {
     if (billingJob) await billingJob;
     db.close();

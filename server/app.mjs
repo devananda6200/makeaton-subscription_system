@@ -41,7 +41,7 @@ import {
   printableInvoice,
 } from "./billing.mjs";
 import { report, csvCell } from "./reports.mjs";
-import { queueEmail, deliverOutbox } from "./mail.mjs";
+import { queueEmail, deliverOutbox, emailMode } from "./mail.mjs";
 
 const team = roles("admin", "staff");
 const admin = roles("admin");
@@ -119,7 +119,7 @@ export function createApp(db, { demo = false } = {}) {
     res.json({
       user: req.user || null,
       demo,
-      email_mode: process.env.SMTP_HOST ? "smtp" : "outbox",
+      email_mode: emailMode(),
     }),
   );
   app.post("/api/auth/login", authLimit, async (req, res) => {
@@ -506,8 +506,16 @@ export function createApp(db, { demo = false } = {}) {
   );
   app.get("/api/outbox", admin, (_req, res) =>
     res.json({
-      items: db.prepare("SELECT * FROM outbox ORDER BY id DESC LIMIT 60").all(),
-      mode: process.env.SMTP_HOST ? "smtp" : "outbox",
+      items: db
+        .prepare("SELECT * FROM outbox ORDER BY id DESC LIMIT 60")
+        .all()
+        .map((mail) => ({
+          ...mail,
+          body: mail.body.includes("?reset=")
+            ? "Account security link hidden. Check the recipient inbox."
+            : mail.body,
+        })),
+      mode: emailMode(),
     }),
   );
   app.post("/api/outbox/:id/retry", admin, (req, res) => {

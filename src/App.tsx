@@ -737,7 +737,7 @@ function Settings({
                 icon: Mail,
                 title: "Email outbox",
                 description:
-                  emailMode === "smtp"
+                  emailMode !== "outbox"
                     ? "Inspect email delivery and retry failed messages."
                     : "Preview queued invoices, reminders, and password-reset messages.",
                 path: "outbox",
@@ -792,8 +792,8 @@ function Settings({
         <div>
           <span>Email delivery</span>
           <b>
-            {emailMode === "smtp"
-              ? "SMTP delivery enabled"
+            {emailMode !== "outbox"
+              ? "Email provider connected"
               : "Outbox preview · SMTP not configured"}
           </b>
         </div>
@@ -845,9 +845,9 @@ function Journal({
         }
         description={
           section === "outbox"
-            ? emailMode === "smtp"
+            ? emailMode !== "outbox"
               ? "Delivery status for invoices, reminders, and account messages."
-              : "Email preview is active. Messages are queued here until SMTP is configured."
+              : "Email preview is active. Messages are queued here until an email provider is configured."
             : "A shared view of the work that keeps your business moving."
         }
       />

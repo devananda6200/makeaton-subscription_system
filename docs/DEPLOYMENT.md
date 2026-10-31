@@ -89,3 +89,24 @@ This is a tested hackathon application with INR/UTC billing and single-instance 
 ## Compact public demo
 
 The demo seed contains four customers, four subscriptions (three active and one quotation), and three invoices with unpaid, paid, and partially paid examples. Render now uses `brightloop-demo-small.db` on the existing disk. The previous `brightloop-demo.db` remains untouched for recovery; it is not loaded by the app.
+
+## Brevo Free email delivery
+
+Use Brevo's Free plan; do not enable paid upgrades or add-ons. Verify a sender
+in Brevo and set `BREVO_API_KEY`, `MAIL_FROM_EMAIL`, and
+`EMAIL_ALLOWED_RECIPIENTS` through hosting secret settings. The allowlist is a
+comma-separated set of real inboxes permitted to receive mail from the public
+admin demo. No provider key is exposed to the frontend or committed to Git.
+
+Brevo uses HTTPS, so SMTP ports are unnecessary. The app attempts queued mail
+on demand and every minute while running, with a limit of 50 successful sends
+per UTC day per database. Brevo's Free plan currently allows 300 emails/day
+across the provider account; keep the account on Free for its provider-side
+limit. The local cap resets if an ephemeral database is recreated.
+
+Fictional addresses never receive real mail. Expired password-reset messages
+fail with instructions to request a new link. Account links are hidden from
+the admin outbox; they remain available to the recipient by email. A `sent`
+status means provider acceptance, not proof of arrival; verify the recipient
+inbox and Brevo delivery logs during setup. Failed messages can be retried
+from the outbox after correcting configuration. No automatic paid fallback.
