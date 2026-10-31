@@ -1,0 +1,330 @@
+[
+  {
+    "start": 0,
+    "duration": 7,
+    "shot": "intro",
+    "chapter": "BRIGHTLOOP",
+    "title": "Less admin. More possibility.",
+    "caption": "The subscription workspace. From first hello to next renewal."
+  },
+  {
+    "start": 7,
+    "duration": 4,
+    "shot": "01-login",
+    "chapter": "01 / A SECURE START",
+    "title": "One workspace. Every subscription.",
+    "caption": "A real browser walkthrough of Brightloop."
+  },
+  {
+    "start": 11,
+    "duration": 4,
+    "shot": "02-credentials",
+    "chapter": "01 / A SECURE START",
+    "title": "Sign in. Step into control.",
+    "caption": "Normal administrator authentication. Clear role permissions."
+  },
+  {
+    "start": 15,
+    "duration": 8,
+    "shot": "03-overview",
+    "chapter": "02 / THE BIG PICTURE",
+    "title": "Your business, at a glance.",
+    "caption": "Recurring revenue. Active subscriptions. Cash collected. What needs attention."
+  },
+  {
+    "start": 23,
+    "duration": 5,
+    "shot": "04-products",
+    "chapter": "03 / BUILD YOUR OFFER",
+    "title": "Everything you offer. Connected.",
+    "caption": "Products, services, and add-ons in one searchable catalog."
+  },
+  {
+    "start": 28,
+    "duration": 6,
+    "shot": "05-product-detail",
+    "chapter": "03 / BUILD YOUR OFFER",
+    "title": "The details make the difference.",
+    "caption": "Sales and cost prices. Product variants. Surcharges. Tax rules."
+  },
+  {
+    "start": 34,
+    "duration": 6,
+    "shot": "06-plans",
+    "chapter": "03 / BUILD YOUR OFFER",
+    "title": "A rhythm for every customer.",
+    "caption": "Daily, weekly, monthly, or annual billing."
+  },
+  {
+    "start": 40,
+    "duration": 6,
+    "shot": "07-plan-rules",
+    "chapter": "03 / BUILD YOUR OFFER",
+    "title": "Flexible plans. Clear boundaries.",
+    "caption": "Minimum quantities, availability, pause, renewal, and closure policies."
+  },
+  {
+    "start": 46,
+    "duration": 5,
+    "shot": "08-templates",
+    "chapter": "04 / FROM OFFER TO ACTIVE",
+    "title": "Your best offer. Ready again.",
+    "caption": "Reusable quotation templates bundle plans, products, and validity."
+  },
+  {
+    "start": 51,
+    "duration": 7,
+    "shot": "09-template-draft",
+    "chapter": "04 / FROM OFFER TO ACTIVE",
+    "title": "A head start on the next hello.",
+    "caption": "Choose a customer. The bundle fills in the rest."
+  },
+  {
+    "start": 58,
+    "duration": 4,
+    "shot": "10-subscriptions",
+    "chapter": "04 / FROM OFFER TO ACTIVE",
+    "title": "One relationship. One clear story.",
+    "caption": "Search and filter every subscription by its lifecycle stage."
+  },
+  {
+    "start": 62,
+    "duration": 3,
+    "shot": "11-lifecycle-draft",
+    "chapter": "04 / FROM OFFER TO ACTIVE",
+    "title": "Start with a draft.",
+    "caption": "A numbered subscription with its terms and product lines."
+  },
+  {
+    "start": 65,
+    "duration": 3,
+    "shot": "12-lifecycle-quotation",
+    "chapter": "04 / FROM OFFER TO ACTIVE",
+    "title": "Make it a quotation.",
+    "caption": "The offer moves forward with an explicit validity date."
+  },
+  {
+    "start": 68,
+    "duration": 3,
+    "shot": "13-lifecycle-confirmed",
+    "chapter": "04 / FROM OFFER TO ACTIVE",
+    "title": "Confirm the agreement.",
+    "caption": "Each transition follows the subscription lifecycle."
+  },
+  {
+    "start": 71,
+    "duration": 4,
+    "shot": "14-lifecycle-active",
+    "chapter": "04 / FROM OFFER TO ACTIVE",
+    "title": "And bring it to life.",
+    "caption": "Activated. Ready for its first billing cycle."
+  },
+  {
+    "start": 75,
+    "duration": 5,
+    "shot": "15-discounts",
+    "chapter": "05 / BILLING THAT ADDS UP",
+    "title": "A little extra reason to stay.",
+    "caption": "Percentage offers and fixed credits, applied automatically."
+  },
+  {
+    "start": 80,
+    "duration": 6,
+    "shot": "16-discount-rules",
+    "chapter": "05 / BILLING THAT ADDS UP",
+    "title": "The right offer. On the right invoice.",
+    "caption": "Control dates, usage, minimums, and product or subscription scope."
+  },
+  {
+    "start": 86,
+    "duration": 6,
+    "shot": "18-billing-run",
+    "chapter": "05 / BILLING THAT ADDS UP",
+    "title": "Close the billing loop.",
+    "caption": "Due cycles become draft invoices. Existing cycles are never billed twice."
+  },
+  {
+    "start": 92,
+    "duration": 4,
+    "shot": "19-billing-result",
+    "chapter": "05 / BILLING THAT ADDS UP",
+    "title": "Calculated. Ready for review.",
+    "caption": "Products, eligible discounts, and taxes come together automatically."
+  },
+  {
+    "start": 96,
+    "duration": 8,
+    "shot": "20-invoice-breakdown",
+    "chapter": "05 / BILLING THAT ADDS UP",
+    "title": "Every line. Every rupee.",
+    "caption": "An itemized invoice with transparent discounts, tax, and totals."
+  },
+  {
+    "start": 104,
+    "duration": 4,
+    "shot": "21-invoice-confirmed",
+    "chapter": "06 / CLOSE THE LOOP",
+    "title": "Review. Confirm. Collect.",
+    "caption": "Email the invoice, send a reminder, or record a receipt."
+  },
+  {
+    "start": 108,
+    "duration": 7,
+    "shot": "22-payment-form",
+    "chapter": "06 / CLOSE THE LOOP",
+    "title": "Match the money to the moment.",
+    "caption": "Record full or partial receipts with a method, date, and reference."
+  },
+  {
+    "start": 115,
+    "duration": 6,
+    "shot": "23-invoice-paid",
+    "chapter": "06 / CLOSE THE LOOP",
+    "title": "Paid. With a complete trail.",
+    "caption": "The balance reaches zero and the receipt stays linked to its invoice."
+  },
+  {
+    "start": 121,
+    "duration": 6,
+    "shot": "24-print-invoice",
+    "chapter": "06 / CLOSE THE LOOP",
+    "title": "Ready to share. Ready to file.",
+    "caption": "A clean, printable invoice with browser Save as PDF."
+  },
+  {
+    "start": 127,
+    "duration": 5,
+    "shot": "25-payments",
+    "chapter": "06 / CLOSE THE LOOP",
+    "title": "Every receipt, accounted for.",
+    "caption": "A searchable ledger. This records received funds; it does not charge cards."
+  },
+  {
+    "start": 132,
+    "duration": 5,
+    "shot": "26-customers",
+    "chapter": "07 / KNOW YOUR BUSINESS",
+    "title": "The people behind your growth.",
+    "caption": "Customer records, new subscriptions, and portal invitations."
+  },
+  {
+    "start": 137,
+    "duration": 8,
+    "shot": "27-reports",
+    "chapter": "07 / KNOW YOUR BUSINESS",
+    "title": "See the bigger picture.",
+    "caption": "MRR, annual run rate, collections, overdue balances, and upcoming renewals."
+  },
+  {
+    "start": 145,
+    "duration": 6,
+    "shot": "28-filtered-report",
+    "chapter": "07 / KNOW YOUR BUSINESS",
+    "title": "Find the signal. Share the insight.",
+    "caption": "Filter by date and plan. Export the report as CSV."
+  },
+  {
+    "start": 151,
+    "duration": 5,
+    "shot": "29-audit",
+    "chapter": "07 / KNOW YOUR BUSINESS",
+    "title": "Nothing gets lost in the handoff.",
+    "caption": "An audit trail of subscription changes, billing runs, invoices, and receipts."
+  },
+  {
+    "start": 156,
+    "duration": 5,
+    "shot": "31-team",
+    "chapter": "08 / BUILT FOR PEOPLE",
+    "title": "The right access for every role.",
+    "caption": "Administrators manage the workspace. Staff keep daily operations moving."
+  },
+  {
+    "start": 161,
+    "duration": 5,
+    "shot": "32-search",
+    "chapter": "08 / BUILT FOR PEOPLE",
+    "title": "Find your way. Instantly.",
+    "caption": "Search a customer, company, subscription, or invoice from anywhere."
+  },
+  {
+    "start": 166,
+    "duration": 5,
+    "shot": "33-registration",
+    "chapter": "08 / BUILT FOR PEOPLE",
+    "title": "Customers can start themselves.",
+    "caption": "Self-service registration with a strong-password policy."
+  },
+  {
+    "start": 171,
+    "duration": 5,
+    "shot": "34-password-reset",
+    "chapter": "08 / BUILT FOR PEOPLE",
+    "title": "A fresh start. Securely.",
+    "caption": "Password recovery uses expiring, single-use links."
+  },
+  {
+    "start": 176,
+    "duration": 3,
+    "shot": "35-customer-login",
+    "chapter": "09 / THE CUSTOMER SIDE",
+    "title": "A different role. Their own space.",
+    "caption": "Sign in as the customer to see only their records."
+  },
+  {
+    "start": 179,
+    "duration": 7,
+    "shot": "36-customer-portal",
+    "chapter": "09 / THE CUSTOMER SIDE",
+    "title": "Their subscriptions. Their next steps.",
+    "caption": "A dedicated portal for balances, invoices, and subscription details."
+  },
+  {
+    "start": 186,
+    "duration": 5,
+    "shot": "37-customer-controls",
+    "chapter": "09 / THE CUSTOMER SIDE",
+    "title": "More control. Fewer support tickets.",
+    "caption": "Eligible subscriptions can be paused, resumed, renewed, or closed."
+  },
+  {
+    "start": 191,
+    "duration": 7,
+    "shot": "38-addons",
+    "chapter": "09 / THE CUSTOMER SIDE",
+    "title": "Make the next cycle work for you.",
+    "caption": "Manage add-ons for future billing. Existing invoices retain their original amounts."
+  },
+  {
+    "start": 198,
+    "duration": 4,
+    "shot": "39-paused",
+    "chapter": "09 / THE CUSTOMER SIDE",
+    "title": "Pause when life changes.",
+    "caption": "A real customer action updates the subscription state."
+  },
+  {
+    "start": 202,
+    "duration": 5,
+    "shot": "40-renewal",
+    "chapter": "09 / THE CUSTOMER SIDE",
+    "title": "Give the relationship more room.",
+    "caption": "Choose an explicit expiry date for the renewed term."
+  },
+  {
+    "start": 207,
+    "duration": 8,
+    "shot": "41-live-email",
+    "chapter": "10 / LIVE AND CONNECTED",
+    "title": "Every message, in the loop.",
+    "caption": "Live Brevo delivery: invoices, invitations, and resets. Persistent anti-spam limits."
+  },
+  {
+    "start": 215,
+    "duration": 8,
+    "shot": "outro",
+    "chapter": "BRIGHTLOOP",
+    "title": "Less busywork. More bright ideas.",
+    "caption": "Explore the live product: brightloop-subscriptions.onrender.com"
+  }
+]
