@@ -1,6 +1,6 @@
 # Brightloop
 
-**One workspace. Every subscription.**
+**One workspace, every subscription.**
 
 Brightloop turns the Subscription Management System challenge into a complete workflow: **catalog &rarr; quotation &rarr; subscription &rarr; invoice &rarr; payment &rarr; revenue insight**. Built for a clear hackathon demonstration, with persistent records and tested financial logic underneath the interface.
 
