@@ -383,11 +383,13 @@ export default function Dashboard({
                 action={() => navigate("subscriptions?status=active")}
               />
               <StatCard
-                label={customer ? "Payments made" : "Active subscriptions"}
-                value={customer ? money(r.collected) : number(r.active)}
+                label={
+                  customer ? "Monthly recurring total" : "Active subscriptions"
+                }
+                value={customer ? money(r.mrr) : number(r.active)}
                 note={
                   customer
-                    ? "Collected in the selected period"
+                    ? "Normalized · before discounts & tax"
                     : `${r.breakdown.reduce((n, b) => n + b.count, 0)} subscriptions in your workspace`
                 }
                 icon={Layers}
@@ -395,7 +397,7 @@ export default function Dashboard({
                 action={() => navigate("subscriptions")}
               />
               <StatCard
-                label="Cash collected"
+                label={customer ? "Payments made" : "Cash collected"}
                 value={money(r.collected)}
                 note={`${number(r.payment_count)} payments · selected period`}
                 icon={Wallet}

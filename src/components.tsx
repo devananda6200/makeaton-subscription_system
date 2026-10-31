@@ -1,6 +1,7 @@
 import {
   useEffect,
   useRef,
+  useId,
   type ButtonHTMLAttributes,
   type ReactNode,
 } from "react";
@@ -120,18 +121,21 @@ export function Modal({
   wide?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
   useEffect(() => {
     const dialog = ref.current!;
     dialog.showModal();
     document.body.classList.add("modal-open");
     return () => {
       dialog.close();
-      document.body.classList.remove("modal-open");
+      if (!document.querySelector("dialog[open]"))
+        document.body.classList.remove("modal-open");
     };
   }, []);
   return (
     <dialog
       ref={ref}
+      aria-labelledby={titleId}
       className={`modal ${wide ? "modal-wide" : ""}`}
       onCancel={onClose}
       onClick={(e) => {
@@ -140,7 +144,7 @@ export function Modal({
     >
       <div className="modal-header">
         <div>
-          <h2>{title}</h2>
+          <h2 id={titleId}>{title}</h2>
           {subtitle && <p>{subtitle}</p>}
         </div>
         <button

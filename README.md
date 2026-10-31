@@ -4,6 +4,8 @@
 
 Brightloop turns the Subscription Management System challenge into a complete workflow: **catalog → quotation → subscription → invoice → payment → revenue insight**. Built for a clear hackathon demonstration, with persistent records and tested financial logic underneath the interface.
 
+![Brightloop overview with live demo metrics](docs/assets/overview.jpg)
+
 ## Start in two commands
 
 Requires **Node.js 24+**. No database service, API key, or paid account is needed.

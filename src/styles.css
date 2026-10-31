@@ -3843,6 +3843,9 @@ th {
 }
 
 /* Legible type and contrast at both desktop and handheld sizes. */
+.sidebar-overlay {
+  display: none;
+}
 .sidebar {
   overflow-x: hidden;
 }
@@ -4138,6 +4141,9 @@ td.amount,
   font-size: 10px;
 }
 @media (max-width: 760px) {
+  .sidebar-overlay {
+    display: block;
+  }
   .sidebar {
     visibility: hidden;
   }

@@ -158,6 +158,7 @@ export default function App() {
       await api("/auth/logout", "POST", {});
       setUser(null);
       setPanel("");
+      setMobile(false);
       navigate("overview");
     } catch (e) {
       setToast({ text: (e as Error).message, error: true });

@@ -8,6 +8,7 @@ Checked on **31 October 2026** with Node 24 on Windows. Executed checks are dist
 - The full HTTP workflow creates tax/product/variant/plan/template/subscription, activates and bills it, confirms and settles the invoice, queues email, prints, pauses/resumes/renews, and signs into the customer portal. It runs within the main suite or with `npm run test:workflow`.
 - `npm run build`: strict TypeScript check and optimized Vite build pass; fonts ship locally.
 - Dependency installation reported zero vulnerabilities at verification time; CI repeats a production-dependency audit.
+- GitHub Actions passed the same tests, build, and audit on Ubuntu/Node 24: [verified workflow run](https://github.com/devananda6200/makeaton-subscription_system/actions/runs/41170268571).
 
 ## Browser checks executed
 
@@ -22,8 +23,11 @@ The connected browser visibly verified:
 7. Customer access to its own subscription and invoice.
 8. Add-on removal with base-product controls disabled, followed by pause/resume.
 9. Desktop/handheld layout review, including readability and narrow-screen navigation fixes.
+10. Built frontend served directly by Express on port 3001, with no console errors; CSV export downloaded and its values checked; printable invoice rendered with the correct settled total.
 
 No browser console errors were reported during the main workflow. Browser checks used the connected browser directly and are separate from the automated API/domain tests.
+
+The handheld portal had matching document and viewport widths (377 CSS pixels), with no page-level horizontal overflow. [Desktop](assets/overview.jpg) and [customer portal](assets/customer-mobile.jpg) screenshots are included.
 
 ## Performance executed
 
