@@ -126,6 +126,9 @@ test("API enforces roles, tenant isolation, origin checks and single-use reset l
     ).status,
     200,
   );
+  const publicOutbox = await request("/outbox", "GET", undefined, admin);
+  assert.equal(publicOutbox.status, 200);
+  assert.ok(publicOutbox.data.items.every(mail => !mail.body.includes("?reset=")));
   const outbox = db
     .prepare("SELECT body FROM outbox ORDER BY id DESC LIMIT 1")
     .get();
