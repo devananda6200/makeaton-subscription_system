@@ -119,6 +119,17 @@ export default function App() {
     return () => clearTimeout(t);
   }, [toast]);
   useEffect(() => {
+    const expire = () => {
+      setUser(null);
+      setForm(null);
+      setPayment(null);
+      setPanel("");
+    };
+    window.addEventListener("brightloop:session-expired", expire);
+    return () =>
+      window.removeEventListener("brightloop:session-expired", expire);
+  }, []);
+  useEffect(() => {
     setMobile(false);
     document.title = `${label(route.section)} · Brightloop`;
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });

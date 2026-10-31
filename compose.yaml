@@ -1,0 +1,24 @@
+services:
+  brightloop:
+    build: .
+    ports:
+      - "127.0.0.1:3001:3001"
+    environment:
+      # Local demo defaults. Production requires HTTPS and a fresh database.
+      NODE_ENV: ${NODE_ENV:-development}
+      DEMO_MODE: ${DEMO_MODE:-true}
+      APP_URL: ${APP_URL:-http://localhost:3001}
+      DATABASE_PATH: /app/data/brightloop.db
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      MAIL_FROM: ${MAIL_FROM:-Brightloop <billing@example.com>}
+      TRUST_PROXY: ${TRUST_PROXY:-0}
+    volumes:
+      - brightloop-data:/app/data
+    restart: unless-stopped
+volumes:
+  brightloop-data:

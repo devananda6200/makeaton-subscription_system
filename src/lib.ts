@@ -36,6 +36,7 @@ export interface Lookups {
   taxes: Row[];
   templates: Row[];
   customers: Row[];
+  subscriptions: Row[];
 }
 export interface Report {
   from: string;
@@ -71,6 +72,8 @@ export async function api<T = any>(
     signal,
   });
   const data = await response.json();
+  if (response.status === 401 && !path.startsWith("/auth/"))
+    window.dispatchEvent(new Event("brightloop:session-expired"));
   if (!response.ok)
     throw new Error(data.error || "Something went wrong. Please try again.");
   return data;

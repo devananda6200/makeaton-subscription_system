@@ -3,6 +3,7 @@ import { initializeData } from "./seed.mjs";
 import { createApp } from "./app.mjs";
 import { runBilling } from "./billing.mjs";
 import { deliverOutbox } from "./mail.mjs";
+import { setImmediate as yieldToRequests } from "node:timers/promises";
 
 const db = openDatabase();
 const requestedDemo =
@@ -17,22 +18,34 @@ const server = app.listen(port, process.env.HOST || "127.0.0.1", () =>
   ),
 );
 // One process owns scheduling. Transactions + the cycle key also protect manual runs.
-const timer = setInterval(
-  () => {
+let stopping = false;
+let billingJob = null;
+function scheduleBilling() {
+  if (billingJob || stopping) return;
+  billingJob = (async () => {
     try {
-      runBilling(db);
-      void deliverOutbox(db);
+      let remaining;
+      do {
+        remaining = runBilling(db).remaining;
+        await yieldToRequests();
+      } while (remaining && !stopping);
+      await deliverOutbox(db);
     } catch (error) {
       console.error("Scheduled billing failed:", error.message);
+    } finally {
+      billingJob = null;
     }
-  },
-  60 * 60 * 1000,
-);
+  })();
+}
+const timer = setInterval(scheduleBilling, 60 * 60 * 1000);
 timer.unref();
+if (!demo) scheduleBilling();
 void deliverOutbox(db);
 function stop() {
+  stopping = true;
   clearInterval(timer);
-  server.close(() => {
+  server.close(async () => {
+    if (billingJob) await billingJob;
     db.close();
     process.exit(0);
   });

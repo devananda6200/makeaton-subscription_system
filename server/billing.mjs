@@ -66,15 +66,28 @@ export function calculateInvoice(db, sub, cycleDate, consume = false) {
         ? Math.min(basis, discount.value)
         : roundRatio(basis, discount.value, 10000);
     if (!amount) continue;
-    let remainder = amount;
-    eligible.forEach((line, index) => {
-      const part =
-        index === eligible.length - 1
-          ? remainder
-          : floorRatio(amount, line.subtotal - line.discount, basis);
-      line.discount += part;
-      remainder -= part;
+    // Largest-remainder allocation preserves the exact total without pushing
+    // rounding pennies onto a final line that may not have enough value left.
+    const allocations = eligible.map((line) => {
+      const available = line.subtotal - line.discount;
+      return {
+        line,
+        available,
+        part: floorRatio(amount, available, basis),
+        fraction: (BigInt(amount) * BigInt(available)) % BigInt(basis),
+      };
     });
+    let remainder = amount - allocations.reduce((n, a) => n + a.part, 0);
+    for (const allocation of [...allocations].sort((a, b) =>
+      Number(b.fraction - a.fraction),
+    )) {
+      if (remainder && allocation.part < allocation.available) {
+        allocation.part++;
+        remainder--;
+      }
+    }
+    for (const allocation of allocations)
+      allocation.line.discount += allocation.part;
     applied.push({ id: discount.id, name: discount.name, amount });
     if (consume)
       db.prepare("UPDATE discounts SET uses=uses+1 WHERE id=?").run(

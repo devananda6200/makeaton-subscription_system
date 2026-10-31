@@ -14,7 +14,8 @@
     "build": "tsc -b && vite build",
     "start": "node --env-file-if-exists=.env server/index.mjs",
     "test": "node --test --test-concurrency=1 server/tests/*.test.mjs",
-    "test:e2e": "playwright test",
+    "test:workflow": "node --test server/tests/workflow.test.mjs",
+    "format": "prettier --write src server scripts docs *.md *.json *.ts",
     "benchmark": "node scripts/benchmark.mjs"
   },
   "dependencies": {
@@ -30,7 +31,6 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@playwright/test": "^1.64.1",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

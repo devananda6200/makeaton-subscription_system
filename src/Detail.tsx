@@ -99,7 +99,7 @@ export default function Detail({
       subtitle={
         invoice
           ? "Every line, every payment, the whole picture."
-          : `Subscription details · internal ID ${id}`
+          : "Your plan, services, and next billing cycle."
       }
       onClose={onClose}
     >

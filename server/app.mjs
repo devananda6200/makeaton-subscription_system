@@ -291,6 +291,13 @@ export function createApp(db, { demo = false } = {}) {
               "SELECT * FROM customers WHERE name LIKE ? OR company LIKE ? OR email LIKE ? ORDER BY id DESC LIMIT 500",
             )
             .all(`%${q}%`, `%${q}%`, `%${q}%`),
+      subscriptions: customer
+        ? []
+        : db
+            .prepare(
+              "SELECT s.id,s.number,c.name customer_name,c.company FROM subscriptions s JOIN customers c ON c.id=s.customer_id WHERE s.number LIKE ? OR c.name LIKE ? OR c.company LIKE ? ORDER BY s.id DESC LIMIT 500",
+            )
+            .all(`%${q}%`, `%${q}%`, `%${q}%`),
     });
   });
   app.get("/api/reports", (req, res) =>
@@ -544,8 +551,8 @@ export function createApp(db, { demo = false } = {}) {
       role: "admin",
     },
     discounts: {
-      from: "discounts d",
-      select: "d.*",
+      from: "discounts d LEFT JOIN products p ON p.id=d.product_id LEFT JOIN subscriptions s ON s.id=d.subscription_id",
+      select: "d.*,p.name product_name,s.number subscription_number",
       search: ["d.name", "d.kind"],
       alias: "d",
       role: "admin",

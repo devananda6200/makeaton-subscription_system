@@ -136,6 +136,51 @@ test("fixed discounts allocate precisely and cannot create negative balances", (
   assert.equal(result.tax, 0);
   db.close();
 });
+
+test("rounding pennies never over-discount the final line", () => {
+  const { db, sub } = fixture();
+  db.prepare("UPDATE products SET price=1 WHERE id=1").run();
+  db.prepare("UPDATE plans SET price=1 WHERE id=1").run();
+  sub.plan_price = 1;
+  sub.lines = JSON.stringify([
+    {
+      product_id: 1,
+      name: "Tiny one",
+      quantity: 1,
+      unit_price: 1,
+      tax_id: 1,
+      variant: "",
+    },
+    {
+      product_id: 1,
+      name: "Tiny two",
+      quantity: 1,
+      unit_price: 1,
+      tax_id: 1,
+      variant: "",
+    },
+  ]);
+  insert(db, "discounts", {
+    name: "Two paise",
+    kind: "fixed",
+    value: 2,
+    starts_on: today(),
+    ends_on: today(),
+    usage_limit: 1,
+  });
+  const result = calculateInvoice(db, sub, today());
+  assert.equal(result.discount, 2);
+  assert.ok(
+    result.lines.every(
+      (l) => l.discount <= l.subtotal && l.total >= 0 && l.tax >= 0,
+    ),
+  );
+  assert.deepEqual(
+    result.lines.map((l) => l.discount),
+    [1, 1, 0],
+  );
+  db.close();
+});
 test("partial receipts, exact settlement and duplicate protection are atomic", () => {
   const { db, user } = fixture();
   runBilling(db, user);

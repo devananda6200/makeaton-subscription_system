@@ -153,6 +153,10 @@ export default function Records({
     `/${section}?${params}`,
     version,
   );
+  const { data: catalog } = useResource<{ items: Row[] }>(
+    section === "templates" ? "/subscription-catalog" : null,
+    version,
+  );
   const canEdit =
     user.role === "admin" || (section === "customers" && user.role === "staff");
   const isTeam = user.role !== "customer";
@@ -389,7 +393,8 @@ export default function Records({
                       {row.lines.map((l: Row, i: number) => (
                         <span key={i}>
                           <Box size={15} />
-                          Product #{l.product_id}
+                          {catalog?.items.find((p) => p.id === l.product_id)
+                            ?.name || "Product"}
                           {l.variant ? ` · ${l.variant}` : ""}
                           <b>× {l.quantity}</b>
                         </span>
@@ -455,11 +460,9 @@ export default function Records({
                       <span>
                         Applies to{" "}
                         <b>
-                          {row.product_id
-                            ? `Product #${row.product_id}`
-                            : "All products"}
-                          {row.subscription_id
-                            ? ` · Sub #${row.subscription_id}`
+                          {row.product_name || "All products"}
+                          {row.subscription_number
+                            ? ` · ${row.subscription_number}`
                             : ""}
                         </b>
                       </span>

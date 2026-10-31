@@ -58,6 +58,7 @@ export default function RecordForm({
   const { data: searchRefs } = useResource<Lookups>(
     debounced ? "/lookups?q=" + encodeURIComponent(debounced) : null,
   );
+  const filteredRefs = debounced ? searchRefs || refs : refs;
   const [values, setValues] = useState<Values>(() => ({
     name: "",
     email: "",
@@ -318,10 +319,14 @@ export default function RecordForm({
       },
       {
         key: "subscription_id",
-        label: "Subscription ID (optional)",
-        type: "number",
-        min: 1,
-        hint: "Use the numeric ID shown in subscription details. Blank applies to all.",
+        label: "Subscription scope",
+        options: [
+          { value: "", label: "All subscriptions" },
+          ...(filteredRefs?.subscriptions?.map((s) => ({
+            value: s.id,
+            label: `${s.number} · ${s.company || s.customer_name}`,
+          })) || []),
+        ],
       },
     ];
   if (collection === "templates")
@@ -350,7 +355,7 @@ export default function RecordForm({
         required: true,
         options: [
           { value: "", label: "Choose a customer" },
-          ...((searchRefs || refs)?.customers.map((c) => ({
+          ...(filteredRefs?.customers.map((c) => ({
             value: c.id,
             label: `${c.company || c.name} · ${c.email}`,
           })) || []),
@@ -504,11 +509,17 @@ export default function RecordForm({
               </label>
             </div>
           )}
-          {collection === "subscriptions" && (
+          {["subscriptions", "discounts"].includes(collection) && (
             <label className="customer-lookup">
-              Find a customer
+              {collection === "subscriptions"
+                ? "Find a customer"
+                : "Find a subscription"}
               <input
-                placeholder="Search all customers by name, company, or email"
+                placeholder={
+                  collection === "subscriptions"
+                    ? "Search all customers by name, company, or email"
+                    : "Search by subscription number, customer, or company"
+                }
                 value={customerSearch}
                 onChange={(e) => setCustomerSearch(e.target.value)}
               />
